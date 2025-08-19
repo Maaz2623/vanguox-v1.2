@@ -2,25 +2,31 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import React from "react";
 
 const AuthPage = () => {
   return (
-    <div className="h-screen flex justify-center items-center">
-      <div className="h-[85%] shadow-2xl w-[70%] border rounded-lg border-green-500 flex">
-        <div className="w-1/2 flex justify-center items-center p-4">
+    <div className="h-screen flex justify-center items-center relative">
+      <Image
+        src="/bg.png"
+        alt="background"
+        fill
+        className="object-cover -z-10 blur-3xl bg-black/70"
+      />
+
+      <div className="h-[85%] shadow-2xl w-[70%] rounded-xl bg-white  flex">
+        <div className="w-1/2 justify-center items-center p-4 md:flex hidden">
           <Image
             src={`/ai-image.jpg`}
             alt="logo"
             width={500}
             height={500}
             className="w-full h-full rounded-xl"
-          />
+          />  
         </div>
-        <div className="flex flex-col items-start text-center w-1/2 border px-16 py-20 space-y-4">
-          <div className="border w-full">
+        <div className="flex flex-col items-start text-center px-8 md:px-16 py-10 md:py-20 space-y-4 w-full md:w-1/2">
+          <div className="w-full">
             <div className="text-start">
               <h1 className="text-3xl w-full text-start font-semibold">
                 Create an account
@@ -31,10 +37,10 @@ const AuthPage = () => {
             </div>
           </div>
           <div className="w-full my-4 space-y-4">
-            <div className="flex w-full gap-x-4 border">
+            <div className="flex w-full gap-x-4">
               <div className="w-full space-y-1">
                 <Label>First Name</Label>
-                <Input className="" placeholder="e.g. John" />
+                <Input className="border" placeholder="e.g. John" />
               </div>
               <div className="w-full space-y-1">
                 <Label>Last Name</Label>
