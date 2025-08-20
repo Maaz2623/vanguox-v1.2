@@ -12,9 +12,9 @@ const AuthPage = () => {
         src="/bg.png"
         alt="background"
         fill
-        className="object-cover -z-10 blur-3xl bg-black/70"
+        className="object-cover -z-10 bg-black/70"
       />
-
+      <div className="absolute top-0 left-0 bg-green-500 w-[500px] z-100" />
       <div className="h-[85%] shadow-2xl w-[70%] rounded-xl bg-white  flex">
         <div className="w-1/2 justify-center items-center p-4 md:flex hidden">
           <Image
@@ -25,7 +25,7 @@ const AuthPage = () => {
             className="w-full h-full rounded-xl"
           />  
         </div>
-        <div className="flex flex-col items-start text-center px-8 md:px-16 py-10 md:py-20 space-y-4 w-full md:w-1/2">
+        <div className="flex flex-col items-start text-center px-8 md:px-16 py-10 md:py-12 space-y-4 w-full md:w-1/2">
           <div className="w-full">
             <div className="text-start">
               <h1 className="text-3xl w-full text-start font-semibold">
