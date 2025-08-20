@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth/auth";
+import { ChatSidebar } from "@/modules/chat/ui/components/chat-sidebar";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -15,5 +16,10 @@ export default async function MainLayout({
     redirect(`/auth`);
   }
 
-  return <div className="max-h-screen">{children}</div>;
+  return (
+    <div className="h-screen  relative">
+      <ChatSidebar />
+      {children}
+    </div>
+  );
 }
