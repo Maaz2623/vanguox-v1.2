@@ -1,33 +1,11 @@
 "use client";
-import {
-  PromptInput,
-  PromptInputButton,
-  PromptInputModelSelect,
-  PromptInputModelSelectContent,
-  PromptInputModelSelectItem,
-  PromptInputModelSelectTrigger,
-  PromptInputModelSelectValue,
-  PromptInputSubmit,
-  PromptInputTextarea,
-  PromptInputToolbar,
-  PromptInputTools,
-} from "@/components/ai-elements/prompt-input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
 import { models } from "@/constants";
-import { MicIcon } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { useChat } from "@ai-sdk/react";
@@ -35,42 +13,48 @@ import { Response } from "@/components/ai-elements/response";
 import { useChatStore } from "../../hooks/chat-store";
 import { useSharedChatContext } from "../components/chat-context";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { useModelStore } from "../../hooks/model-store";
+import { DefaultChatTransport } from "ai";
 
 export const ChatView = () => {
-  const [open, setOpen] = useState(false);
-
   const { chat } = useSharedChatContext();
-
-  const [text, setText] = useState<string>("");
-  const [model, setModel] = useState<string>(models[0].id);
 
   const { pendingMessage, setPendingMessage } = useChatStore();
 
-  const { messages, sendMessage, status } = useChat({ chat });
+  const { model } = useModelStore();
+
+  const { messages, sendMessage } = useChat({
+    chat,
+    transport: new DefaultChatTransport({
+      api: `/api/chat`,
+    }),
+  });
 
   const sentRef = useRef(false);
 
   useEffect(() => {
     if (pendingMessage && !sentRef.current) {
       sentRef.current = true; // prevent second run
-      sendMessage({
-        text: pendingMessage,
-      });
+      sendMessage(
+        {
+          text: pendingMessage,
+        },
+        {
+          body: {
+            model: model.id,
+          },
+        }
+      );
       setPendingMessage(null);
     }
   }, [pendingMessage, sendMessage, setPendingMessage]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (text.trim()) {
-      sendMessage({ text: text });
-      setText("");
-    }
-  };
+  const modelIcon =
+    models.find((m) => m.id === model.id)?.icon || "/model-logos/default.avif"; // Default fallback if not found
 
   return (
     <div className="relative h-screen w-full">
-      {/* Hover area */}
       {/* Main scroll area */}
       <ScrollArea
         className="
@@ -91,18 +75,31 @@ export const ChatView = () => {
                       message.role === "assistant" && "bg-white!"
                     )}
                   >
-                    {message.parts.map((part, i) => {
-                      switch (part.type) {
-                        case "text": // we don't use any reasoning or tool calls in this example
-                          return (
-                            <Response key={`${message.id}-${i}`}>
-                              {part.text}
-                            </Response>
-                          );
-                        default:
-                          return null;
-                      }
-                    })}
+                    <div className="flex gap-x-2 items-start">
+                      {message.role === "assistant" && (
+                        <div className="h-full items-start">
+                          <Image
+                            src={modelIcon}
+                            alt="logo"
+                            className="-mt-0.5 rounded-full"
+                            width={25}
+                            height={25}
+                          />
+                        </div>
+                      )}
+                      {message.parts.map((part, i) => {
+                        switch (part.type) {
+                          case "text": // we don't use any reasoning or tool calls in this example
+                            return (
+                              <Response key={`${message.id}-${i}`} className="">
+                                {part.text}
+                              </Response>
+                            );
+                          default:
+                            return null;
+                        }
+                      })}
+                    </div>
                   </MessageContent>
                 </Message>
               ))}

@@ -21,19 +21,24 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useChatStore } from "../../hooks/chat-store";
 import { useSharedChatContext } from "./chat-context";
+import { useModelStore } from "../../hooks/model-store";
+import { Model } from "../../hooks/types";
+import { DefaultChatTransport } from "ai";
 
 export const ChatInput = () => {
   const [text, setText] = useState<string>("");
-  const [model, setModel] = useState<string>(models[0].id);
 
+  const { setModel: setAiModel, model } = useModelStore();
   const { chat } = useSharedChatContext();
-
-  const { messages, sendMessage, status } = useChat({ chat });
+  const { sendMessage, status } = useChat({
+    chat,
+    transport: new DefaultChatTransport({
+      api: `/api/chat`,
+    }),
+  });
 
   const pathname = usePathname();
-
   const router = useRouter();
-
   const { setPendingMessage } = useChatStore();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,9 +50,16 @@ export const ChatInput = () => {
         setText("");
       }
     } else {
-      sendMessage({
-        text: text,
-      });
+      sendMessage(
+        {
+          text: text,
+        },
+        {
+          body: {
+            model: model.id,
+          },
+        }
+      );
       setText("");
     }
   };
@@ -59,7 +71,7 @@ export const ChatInput = () => {
         pathname !== "/" && "bottom-0"
       )}
     >
-      <PromptInput onSubmit={handleSubmit} className="">
+      <PromptInput onSubmit={handleSubmit}>
         <PromptInputTextarea
           onChange={(e) => setText(e.target.value)}
           value={text}
@@ -71,11 +83,32 @@ export const ChatInput = () => {
               <MicIcon size={16} />
             </PromptInputButton>
             <PromptInputModelSelect
-              onValueChange={(value) => setModel(value)}
-              value={model}
+              onValueChange={(value) => {
+                // Find the model
+                const selectedModel = models.find(
+                  (model) => model.id === value
+                );
+
+                if (selectedModel) {
+                  // Type assertion to ensure that selectedModel is of type Model
+                  setAiModel(selectedModel as Model);
+                }
+              }}
+              value={model.id}
             >
               <PromptInputModelSelectTrigger>
-                <PromptInputModelSelectValue />
+                <PromptInputModelSelectValue>
+                  <div className="flex items-center gap-x-2">
+                    <Image
+                      src={model.icon}
+                      alt={model.name}
+                      width={20}
+                      height={20}
+                      className="rounded-full"
+                    />
+                    {model.name}
+                  </div>
+                </PromptInputModelSelectValue>
               </PromptInputModelSelectTrigger>
               <PromptInputModelSelectContent>
                 {models.map((model) => (
@@ -95,7 +128,7 @@ export const ChatInput = () => {
               </PromptInputModelSelectContent>
             </PromptInputModelSelect>
           </PromptInputTools>
-          <PromptInputSubmit disabled={!text} />
+          <PromptInputSubmit disabled={!text} status={status} />
         </PromptInputToolbar>
       </PromptInput>
     </div>
