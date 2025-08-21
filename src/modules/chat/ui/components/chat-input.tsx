@@ -13,27 +13,52 @@ import {
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
 import { models } from "@/constants";
+import { cn } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
 import { MicIcon } from "lucide-react";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { useChatStore } from "../../hooks/chat-store";
+import { useSharedChatContext } from "./chat-context";
 
 export const ChatInput = () => {
   const [text, setText] = useState<string>("");
   const [model, setModel] = useState<string>(models[0].id);
 
-  const { messages, sendMessage, status } = useChat();
+  const { chat } = useSharedChatContext();
+
+  const { messages, sendMessage, status } = useChat({ chat });
+
+  const pathname = usePathname();
+
+  const router = useRouter();
+
+  const { setPendingMessage } = useChatStore();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (text.trim()) {
-      sendMessage({ text: text });
+    if (pathname === "/") {
+      if (text.trim()) {
+        router.push(`/chats/123`);
+        setPendingMessage(text);
+        setText("");
+      }
+    } else {
+      sendMessage({
+        text: text,
+      });
       setText("");
     }
   };
 
   return (
-    <div className="absolute w-[60%] bottom-0 pb-2 bg-white">
+    <div
+      className={cn(
+        "absolute md:w-[60%] w-full px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[16%] pb-2 bg-white transition-all duration-500",
+        pathname !== "/" && "bottom-0"
+      )}
+    >
       <PromptInput onSubmit={handleSubmit} className="">
         <PromptInputTextarea
           onChange={(e) => setText(e.target.value)}

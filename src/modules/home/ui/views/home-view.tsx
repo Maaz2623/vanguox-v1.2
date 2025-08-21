@@ -50,8 +50,18 @@ export const HomeView = () => {
   };
 
   return (
-    <div className=" relative h-screen w-full">
-      
+    <div className="relative h-screen w-full flex items-starts justify-center">
+      <div className={("flex flex-col items-center text-center mt-[30vh] md:mt-[15%]")}>
+        <Image
+          alt="logo"
+          src="/globe.svg"
+          width={100}
+          height={100}
+          className="mb-4 w-[100px]"
+        />
+        <h1 className="md:text-4xl text-2xl font-semibold">Welcome to Vanguox</h1>
+        <p className="text-muted-foreground md:text-base text-sm  ">How can I help you today?</p>
+      </div>
     </div>
   );
 };

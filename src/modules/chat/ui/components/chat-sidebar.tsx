@@ -13,7 +13,7 @@ export const ChatSidebar = () => {
   return (
     <>
       <div
-        className="absolute top-0 left-0 bg-pink-500 w-[2%] h-full z-50 cursor-pointer"
+        className="absolute top-0 left-0 bg-transparent w-[4%] md:w-[2%] h-full z-50 cursor-pointer"
         onMouseEnter={() => setOpen(true)}
       ></div>
 
@@ -22,7 +22,7 @@ export const ChatSidebar = () => {
         <SheetContent
           overlay={false}
           side="left"
-          className="w-[20%]"
+          className="w-[80%] md:w-[19%]  h-[98vh] rounded-lg translate-x-2 translate-y-2"
           onMouseLeave={() => setOpen(false)}
         >
           <SheetHeader>

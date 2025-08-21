@@ -1,4 +1,6 @@
 import { auth } from "@/lib/auth/auth";
+import { ChatProvider } from "@/modules/chat/ui/components/chat-context";
+import { ChatInput } from "@/modules/chat/ui/components/chat-input";
 import { ChatSidebar } from "@/modules/chat/ui/components/chat-sidebar";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -17,9 +19,14 @@ export default async function MainLayout({
   }
 
   return (
-    <div className="h-screen  relative">
-      <ChatSidebar />
-      {children}
-    </div>
+    <ChatProvider>
+      <div className="h-screen  relative">
+        <ChatSidebar />
+        <div className="relative mx-auto w-full">
+          {children}
+          <ChatInput />
+        </div>
+      </div>
+    </ChatProvider>
   );
 }
