@@ -144,7 +144,7 @@ export const ChatView = () => {
                   </MessageContent>
                 </Message>
               ))}
-              {status === "submitted" && <Loader />}
+              {status === "submitted" && <Loader className="ml-5 mt-5" />}
             </div>
           </ConversationContent>
           <ConversationScrollButton />
