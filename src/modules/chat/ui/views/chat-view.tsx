@@ -66,6 +66,8 @@ export const ChatView = () => {
       >
         <div className="h-full mx-auto pb-[40vh] w-full md:w-[60%]">
           <Conversation>
+            <ConversationScrollButton className="z-[100px]" />
+
             <ConversationContent>
               {messages.map((message) => (
                 <Message from={message.role} key={message.id}>
@@ -104,7 +106,6 @@ export const ChatView = () => {
                 </Message>
               ))}
             </ConversationContent>
-            <ConversationScrollButton />
           </Conversation>
         </div>
       </ScrollArea>
