@@ -82,7 +82,7 @@ export const ChatView = () => {
         <Conversation className="max-h-screen  overflow-hidden  w-full">
           <ConversationContent className="w-[60%] mx-auto">
             <div className="h-full pb-[40vh] z-50">
-              {messages.map((message, messageIndex) => (
+              {messages.map((message) => (
                 <Message from={message.role} key={message.id}>
                   <MessageContent
                     className={cn(message.role === "assistant" && "bg-white!")}
@@ -90,28 +90,50 @@ export const ChatView = () => {
                     {message.parts.map((part, i) => {
                       switch (part.type) {
                         case "text":
-                          const isLastMessage =
-                            messageIndex === messages.length - 1;
                           return (
-                            <div key={`${message.id}-${i}`}>
-                              <Response>{part.text}</Response>
-                              <div className="h-12 mt-2 w-full">
-                                <Actions className="  ">
-                                  <Action
-                                    onClick={() => regenerate()}
-                                    label="Retry"
-                                  >
-                                    <RefreshCcwIcon className="size-3" />
-                                  </Action>
-                                  <Action
-                                    onClick={() =>
-                                      navigator.clipboard.writeText(part.text)
-                                    }
-                                    label="Copy"
-                                  >
-                                    <CopyIcon className="size-3" />
-                                  </Action>
-                                </Actions>
+                            <div
+                              key={`${message.id}-${i}`}
+                              className="flex items-start gap-3"
+                            >
+                              {message.role === "assistant" && (
+                                <Image
+                                  src={modelIcon}
+                                  width={25}
+                                  height={25}
+                                  alt="model-logo"
+                                  className="rounded-full shrink-0"
+                                />
+                              )}
+                              {/* Right: Text + Actions */}
+                              <div className="flex flex-col mt-0">
+                                <Response className="text-[15px] leading-relaxed">
+                                  {part.text}
+                                </Response>
+                                {message.role === "assistant" && (
+                                  <div className="flex gap-2 mt-2">
+                                    <Action
+                                      onClick={() => regenerate()}
+                                      label="Retry"
+                                    >
+                                      <RefreshCcwIcon className="size-3.5" />
+                                    </Action>
+                                    <Action
+                                      onClick={() =>
+                                        handleCopy(
+                                          `${message.id}-${i}`,
+                                          part.text
+                                        )
+                                      }
+                                      label="Copy"
+                                    >
+                                      {copiedId === `${message.id}-${i}` ? (
+                                        <CheckIcon className="size-3.5" />
+                                      ) : (
+                                        <CopyIcon className="size-3.5" />
+                                      )}{" "}
+                                    </Action>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           );
