@@ -20,9 +20,9 @@ export default async function MainLayout({
 
   return (
     <ChatProvider>
-      <div className="h-screen  relative">
+      <div className="h-screen relative">
         <ChatSidebar />
-        <div className="relative mx-auto w-full">
+        <div className=" w-full h-screen">
           {children}
           <ChatInput />
         </div>

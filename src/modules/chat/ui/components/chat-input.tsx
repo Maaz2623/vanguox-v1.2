@@ -67,11 +67,11 @@ export const ChatInput = () => {
   return (
     <div
       className={cn(
-        "absolute md:w-[60%] w-full px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[16%] pb-2 bg-white transition-all duration-500",
+        "absolute md:w-[60%] w-full bg-white px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[16%] pb-2 transition-all duration-500",
         pathname !== "/" && "bottom-0"
       )}
     >
-      <PromptInput onSubmit={handleSubmit}>
+      <PromptInput onSubmit={handleSubmit} className="bg-transparent">
         <PromptInputTextarea
           onChange={(e) => setText(e.target.value)}
           value={text}
