@@ -18,12 +18,15 @@ import { useChat } from "@ai-sdk/react";
 import { MicIcon } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { useChatStore } from "../../hooks/chat-store";
 import { useSharedChatContext } from "./chat-context";
 import { useModelStore } from "../../hooks/model-store";
 import { Model } from "../../hooks/types";
 import { DefaultChatTransport } from "ai";
+import { api } from "../../../../../convex/_generated/api";
+import { useMutation } from "convex/react";
+import { authClient } from "@/lib/auth/auth-client";
 
 export const ChatInput = () => {
   const [text, setText] = useState<string>("");
@@ -41,11 +44,26 @@ export const ChatInput = () => {
   const router = useRouter();
   const { setPendingMessage } = useChatStore();
 
+  const createChat = useMutation(api.chats.createConvexChat);
+
+  const { data: authData } = authClient.useSession();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (pathname === "/") {
       if (text.trim()) {
-        router.push(`/chats/123`);
+        if (!authData) {
+          return;
+        }
+
+        startTransition(async () => {
+          const data = await createChat({
+            userId: authData.user.id,
+          });
+
+          // Pass both text + files in query string (files can later be handled in ChatView)
+          router.push(`/chats/${data}`);
+        });
         setPendingMessage(text);
         setText("");
       }
