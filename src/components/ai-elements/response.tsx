@@ -150,7 +150,50 @@ function parseIncompleteMarkdown(text: string): string {
 export const Response = memo(
   ({ className, ...props }: ResponseProps) => (
     <Streamdown
-      parseIncompleteMarkdown
+      components={{
+        pre: ({ node, className, children }) => {
+          let language = "javascript";
+
+          if (typeof node?.properties?.className === "string") {
+            language = node.properties.className.replace("language-", "");
+          }
+
+          const childrenIsCode =
+            typeof children === "object" &&
+            children !== null &&
+            "type" in children &&
+            children.type === "code";
+
+          console.log(node?.children[0].type === "element");
+
+          if (!childrenIsCode) {
+            return (
+              <CodeBlock
+                code={`Hello World`}
+                language={language}
+                showLineNumbers={true}
+              >
+                <CodeBlockCopyButton />
+              </CodeBlock>
+            );
+          }
+
+          return (
+            <CodeBlock
+              className={cn("my-4 h-auto", className)}
+              code={(children.props as { children: string }).children}
+              language={language}
+            >
+              <CodeBlockCopyButton
+                onCopy={() => console.log("Copied code to clipboard")}
+                onError={() =>
+                  console.error("Failed to copy code to clipboard")
+                }
+              />
+            </CodeBlock>
+          );
+        },
+      }}
       className={cn(
         "size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
         className

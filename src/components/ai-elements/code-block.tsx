@@ -37,7 +37,7 @@ export const CodeBlock = ({
   <CodeBlockContext.Provider value={{ code }}>
     <div
       className={cn(
-        "relative w-full overflow-hidden rounded-md border bg-neutral-100 text-foreground",
+        "relative w-full overflow-hidden rounded-lg! border bg-neutral-100 text-foreground",
         className
       )}
       {...props}
