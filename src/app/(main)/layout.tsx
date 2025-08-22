@@ -20,7 +20,7 @@ export default async function MainLayout({
 
   return (
     <ChatProvider>
-      <div className="h-screen relative">
+      <div className="h-screen relative flex">
         <ChatSidebar />
         <div className=" w-full h-screen">
           {children}
