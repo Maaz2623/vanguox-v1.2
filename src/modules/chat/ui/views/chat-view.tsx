@@ -18,39 +18,35 @@ import { useSharedChatContext } from "../components/chat-context";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useModelStore } from "../../hooks/model-store";
-import { DefaultChatTransport } from "ai";
-import { Action, Actions } from "@/components/ai-elements/actions";
 import {
-  CheckIcon,
-  CopyIcon,
-  RefreshCcwIcon,
-  ThumbsUpIcon,
-} from "lucide-react";
-import {
-  Reasoning,
-  ReasoningContent,
-  ReasoningTrigger,
-} from "@/components/ai-elements/reasoning";
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithToolCalls,
+  UIMessage,
+} from "ai";
+import { Action } from "@/components/ai-elements/actions";
+import { CheckIcon, CopyIcon, RefreshCcwIcon } from "lucide-react";
 import { Loader } from "@/components/ai-elements/loader";
-import {
-  Source,
-  Sources,
-  SourcesContent,
-  SourcesTrigger,
-} from "@/components/ai-elements/source";
-import { ChatInput } from "../components/chat-input";
-import { Button } from "@/components/ui/button";
+interface Props {
+  previousMessages: UIMessage[];
+  chatId: string;
+}
 
-export const ChatView = () => {
+export const ChatView = ({ previousMessages, chatId }: Props) => {
   const { chat } = useSharedChatContext();
   const { pendingMessage, setPendingMessage } = useChatStore();
   const { model } = useModelStore();
 
   const { messages, sendMessage, regenerate, status } = useChat({
     chat,
+    messages: previousMessages,
     transport: new DefaultChatTransport({
       api: `/api/chat`,
+      body: {
+        chatId: chatId,
+        model: model.id,
+      },
     }),
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
   });
 
   const sentRef = useRef(false);
@@ -58,7 +54,10 @@ export const ChatView = () => {
   useEffect(() => {
     if (pendingMessage && !sentRef.current) {
       sentRef.current = true; // prevent second run
-      sendMessage({ text: pendingMessage }, { body: { model: model.id } });
+      sendMessage(
+        { text: pendingMessage },
+        { body: { model: model.id, chatId: chatId } }
+      );
       setPendingMessage(null);
     }
   }, [pendingMessage, sendMessage, setPendingMessage, model.id]);
@@ -107,7 +106,9 @@ export const ChatView = () => {
                               {/* Right: Text + Actions */}
                               <div className="flex flex-col mt-0 gap-y-2">
                                 {message.role === "assistant" && (
-                                  <span className="text-base text-muted-foreground font-semibold">{modelName}</span>
+                                  <span className="text-base text-muted-foreground font-semibold">
+                                    {modelName}
+                                  </span>
                                 )}
                                 <Response className="text-[15px] leading-relaxed">
                                   {part.text}

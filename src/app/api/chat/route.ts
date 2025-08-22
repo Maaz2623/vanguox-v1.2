@@ -1,4 +1,4 @@
-import { saveChat, updateChatTitle } from "@/ai/functions";
+import { saveChat } from "@/ai/functions";
 import { auth } from "@/lib/auth/auth";
 import { Model } from "@/modules/chat/hooks/types";
 import {
@@ -19,13 +19,12 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    console.log("Incoming body:", body);
 
     const {
       messages,
       model,
-      id,
-    }: { messages: UIMessage[]; model: Model["id"]; id: string } = body;
+      chatId,
+    }: { messages: UIMessage[]; model: Model["id"]; chatId: string } = body;
     const result = streamText({
       model: model,
       messages: convertToModelMessages(messages),
@@ -44,13 +43,13 @@ export async function POST(req: Request) {
         size: 16,
       }),
       onFinish: async ({ messages: updatedMessages }) => {
-        if (messages.length < 2) {
-          updateChatTitle({
-            chatId: id,
-            messages,
-            model: model,
-          });
-        }
+        // if (messages.length < 2) {
+        //   updateChatTitle({
+        //     chatId: id,
+        //     messages,
+        //     model: model,
+        //   });
+        // }
 
         const reversed = [...updatedMessages].reverse();
 
@@ -78,7 +77,7 @@ export async function POST(req: Request) {
         if (!userMessage) return;
 
         await saveChat({
-          chatId: id,
+          chatId: chatId,
           messages: [userMessage, assistantMessage],
           modelId: model,
         });

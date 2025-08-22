@@ -1,3 +1,4 @@
+import { loadChat } from "@/ai/functions";
 import { auth } from "@/lib/auth/auth";
 import { ChatProvider } from "@/modules/chat/ui/components/chat-context";
 import { ChatInput } from "@/modules/chat/ui/components/chat-input";

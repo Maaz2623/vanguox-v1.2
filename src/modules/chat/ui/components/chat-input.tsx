@@ -27,12 +27,15 @@ import { DefaultChatTransport } from "ai";
 import { api } from "../../../../../convex/_generated/api";
 import { useMutation } from "convex/react";
 import { authClient } from "@/lib/auth/auth-client";
+import { useChatIdStore } from "../../hooks/chatId-store";
 
 export const ChatInput = () => {
   const [text, setText] = useState<string>("");
 
+  const { chatId, setChatId } = useChatIdStore();
+
   const { setModel: setAiModel, model } = useModelStore();
-  const { chat } = useSharedChatContext();
+  const { chat, clearChat } = useSharedChatContext();
   const { sendMessage, status } = useChat({
     chat,
     transport: new DefaultChatTransport({
@@ -55,13 +58,14 @@ export const ChatInput = () => {
         if (!authData) {
           return;
         }
-
+        clearChat();
         startTransition(async () => {
           const data = await createChat({
             userId: authData.user.id,
           });
-
+          console.log("convex:", data);
           // Pass both text + files in query string (files can later be handled in ChatView)
+          setChatId(data);
           router.push(`/chats/${data}`);
         });
         setPendingMessage(text);
@@ -75,6 +79,7 @@ export const ChatInput = () => {
         {
           body: {
             model: model.id,
+            chatId: chatId,
           },
         }
       );
