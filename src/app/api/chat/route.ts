@@ -1,4 +1,4 @@
-import { updateChatTitle } from "@/ai/functions";
+import { saveChat, updateChatTitle } from "@/ai/functions";
 import { auth } from "@/lib/auth/auth";
 import { Model } from "@/modules/chat/hooks/types";
 import {
@@ -76,6 +76,12 @@ export async function POST(req: Request) {
           .find((m) => m.role === "user");
 
         if (!userMessage) return;
+
+        await saveChat({
+          chatId: id,
+          messages: [userMessage, assistantMessage],
+          modelId: model,
+        });
       },
     });
   } catch (error) {
