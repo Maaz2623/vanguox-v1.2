@@ -105,7 +105,10 @@ export const ChatView = () => {
                                 />
                               )}
                               {/* Right: Text + Actions */}
-                              <div className="flex flex-col mt-0">
+                              <div className="flex flex-col mt-0 gap-y-2">
+                                {message.role === "assistant" && (
+                                  <span className="text-base text-muted-foreground font-semibold">{modelName}</span>
+                                )}
                                 <Response className="text-[15px] leading-relaxed">
                                   {part.text}
                                 </Response>
