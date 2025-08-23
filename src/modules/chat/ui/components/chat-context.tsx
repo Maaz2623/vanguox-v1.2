@@ -5,35 +5,37 @@ import { Chat } from "@ai-sdk/react";
 import { DefaultChatTransport, UIMessage } from "ai";
 
 interface ChatContextValue {
-  // replace with your custom message type
   chat: Chat<UIMessage>;
   clearChat: () => void;
+  initialMessages: UIMessage[];
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined);
 
-function createChat() {
+function createChat(initialMessages: UIMessage[] = []) {
   return new Chat<UIMessage>({
+    messages: initialMessages,
     transport: new DefaultChatTransport({
       api: "/api/chat",
     }),
   });
 }
 
-export function ChatProvider({ children }: { children: ReactNode }) {
-  const [chat, setChat] = useState(() => createChat());
+export function ChatProvider({
+  children,
+  initialMessages = [],
+}: {
+  children: ReactNode;
+  initialMessages?: UIMessage[];
+}) {
+  const [chat, setChat] = useState(() => createChat(initialMessages));
 
   const clearChat = () => {
-    setChat(createChat());
+    setChat(createChat(initialMessages)); // reset back to initial messages
   };
 
   return (
-    <ChatContext.Provider
-      value={{
-        chat,
-        clearChat,
-      }}
-    >
+    <ChatContext.Provider value={{ chat, clearChat, initialMessages }}>
       {children}
     </ChatContext.Provider>
   );

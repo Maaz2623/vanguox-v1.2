@@ -11,9 +11,7 @@ interface Props {
 const ChatIdPage = async ({ params }: Props) => {
   const { chatId } = await params;
 
-
   const previousMessages = await loadChat(chatId);
-
 
   return (
     <div className="absolute top-0 left-0 w-full">

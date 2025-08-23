@@ -36,9 +36,15 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
   const { pendingMessage, setPendingMessage } = useChatStore();
   const { model } = useModelStore();
 
+  useEffect(() => {
+    if (previousMessages?.length) {
+      chat.messages = previousMessages; // directly set into Chat instance
+    }
+  }, [previousMessages, chat]);
+
   const { messages, sendMessage, regenerate, status } = useChat({
     chat,
-    messages: previousMessages,
+    messages: chat.messages,
     transport: new DefaultChatTransport({
       api: `/api/chat`,
       body: {
