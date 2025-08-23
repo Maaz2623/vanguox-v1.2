@@ -22,12 +22,14 @@ import {
 import { Action } from "@/components/ai-elements/actions";
 import { CheckIcon, CopyIcon, RefreshCcwIcon } from "lucide-react";
 import { Loader } from "@/components/ai-elements/loader";
+import { useChatIdStore } from "../../hooks/chatId-store";
 interface Props {
   previousMessages: UIMessage[];
   chatId: string;
 }
 
 export const ChatView = ({ previousMessages, chatId }: Props) => {
+  const { chatId: storeChatId, setChatId } = useChatIdStore();
   const { chat } = useSharedChatContext();
   const { pendingMessage, setPendingMessage } = useChatStore();
   const { model } = useModelStore();
@@ -40,7 +42,7 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
 
   const { messages, sendMessage, regenerate, status } = useChat({
     chat,
-    messages: chat.messages,
+    messages: previousMessages,
     transport: new DefaultChatTransport({
       api: `/api/chat`,
       body: {
@@ -54,6 +56,9 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
   const sentRef = useRef(false);
 
   useEffect(() => {
+    if (!storeChatId) {
+      setChatId(chatId);
+    }
     if (pendingMessage && !sentRef.current) {
       sentRef.current = true; // prevent second run
       sendMessage(

@@ -62,6 +62,7 @@ export async function saveChat({
   modelId: string;
 }) {
   try {
+    console.log("Saving chat...");
     const ids = messages.map((m) => m.id);
 
     // Get existing message IDs from the DB
@@ -91,6 +92,7 @@ export async function saveChat({
       )
       .returning();
 
+    console.log("messages saved.");
     return newMessages;
   } catch (error) {
     console.error("Failed to save chat:", error);
