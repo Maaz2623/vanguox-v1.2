@@ -1,5 +1,5 @@
 import { UIMessage } from "ai";
-import { boolean, jsonb, uuid } from "drizzle-orm/pg-core";
+import { boolean, jsonb } from "drizzle-orm/pg-core";
 import { timestamp } from "drizzle-orm/pg-core";
 import { text } from "drizzle-orm/pg-core";
 import { pgTable } from "drizzle-orm/pg-core";

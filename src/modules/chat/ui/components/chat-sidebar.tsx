@@ -1,33 +1,12 @@
 "use client";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { useState } from "react";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
-import {
-  ClockIcon,
-  FilesIcon,
-  HistoryIcon,
-  PlusIcon,
-  SettingsIcon,
-} from "lucide-react";
+import { FilesIcon, HistoryIcon, PlusIcon, SettingsIcon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authClient } from "@/lib/auth/auth-client";
 import { cn } from "@/lib/utils";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 
 export const ChatSidebar = () => {
   const [open, setOpen] = useState(false);

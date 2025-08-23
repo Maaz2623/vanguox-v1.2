@@ -6,11 +6,7 @@ import {
 } from "@/components/ai-elements/conversation";
 import { models } from "@/constants";
 import { useEffect, useRef, useState } from "react";
-import {
-  Message,
-  MessageAvatar,
-  MessageContent,
-} from "@/components/ai-elements/message";
+import { Message, MessageContent } from "@/components/ai-elements/message";
 import { useChat } from "@ai-sdk/react";
 import { Response } from "@/components/ai-elements/response";
 import { useChatStore } from "../../hooks/chat-store";
@@ -40,7 +36,7 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
     if (previousMessages?.length) {
       chat.messages = previousMessages; // directly set into Chat instance
     }
-  }, [previousMessages, chat]);
+  }, [previousMessages, chat, chatId]);
 
   const { messages, sendMessage, regenerate, status } = useChat({
     chat,
@@ -66,7 +62,7 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
       );
       setPendingMessage(null);
     }
-  }, [pendingMessage, sendMessage, setPendingMessage, model.id]);
+  }, [pendingMessage, sendMessage, setPendingMessage, model.id, chatId]);
 
   const modelIcon =
     models.find((m) => m.id === model.id)?.icon || "/model-logos/default.avif";
