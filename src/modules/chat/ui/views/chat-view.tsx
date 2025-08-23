@@ -23,6 +23,11 @@ import { Action } from "@/components/ai-elements/actions";
 import { CheckIcon, CopyIcon, RefreshCcwIcon } from "lucide-react";
 import { Loader } from "@/components/ai-elements/loader";
 import { useChatIdStore } from "../../hooks/chatId-store";
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from "@/components/ai-elements/reasoning";
 interface Props {
   previousMessages: UIMessage[];
   chatId: string;
@@ -148,6 +153,20 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                               </div>
                             </div>
                           );
+                        case "reasoning":
+                          return (
+                            <Reasoning
+                              key={`${message.id}-${i}`}
+                              className="w-full"
+                              isStreaming={status === "streaming"}
+                            >
+                              <ReasoningTrigger />
+                              <ReasoningContent className="text-muted-foreground">
+                                {part.text}
+                              </ReasoningContent>
+                            </Reasoning>
+                          );
+
                         default:
                           return null;
                       }
