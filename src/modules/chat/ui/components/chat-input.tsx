@@ -28,6 +28,7 @@ import { api } from "../../../../../convex/_generated/api";
 import { useMutation } from "convex/react";
 import { authClient } from "@/lib/auth/auth-client";
 import { useChatIdStore } from "../../hooks/chatId-store";
+import { ModelCombobox } from "@/components/model-combo-box";
 
 export const ChatInput = () => {
   const [text, setText] = useState<string>("");
@@ -105,7 +106,12 @@ export const ChatInput = () => {
             <PromptInputButton>
               <MicIcon size={16} />
             </PromptInputButton>
-            <PromptInputModelSelect
+            <ModelCombobox
+              models={models}
+              value={model.id}
+              onChange={(selectedModel) => setAiModel(selectedModel)}
+            />
+            {/* <PromptInputModelSelect
               onValueChange={(value) => {
                 // Find the model
                 const selectedModel = models.find(
@@ -113,7 +119,6 @@ export const ChatInput = () => {
                 );
 
                 if (selectedModel) {
-                  // Type assertion to ensure that selectedModel is of type Model
                   setAiModel(selectedModel as Model);
                 }
               }}
@@ -133,7 +138,7 @@ export const ChatInput = () => {
                   </div>
                 </PromptInputModelSelectValue>
               </PromptInputModelSelectTrigger>
-              <PromptInputModelSelectContent>
+              <PromptInputModelSelectContent className="max-h-[500px]">
                 {models.map((model) => (
                   <PromptInputModelSelectItem key={model.id} value={model.id}>
                     <div className="flex gap-x-2">
@@ -149,7 +154,7 @@ export const ChatInput = () => {
                   </PromptInputModelSelectItem>
                 ))}
               </PromptInputModelSelectContent>
-            </PromptInputModelSelect>
+            </PromptInputModelSelect> */}
           </PromptInputTools>
           <PromptInputSubmit disabled={!text} status={status} />
         </PromptInputToolbar>
