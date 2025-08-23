@@ -114,6 +114,7 @@ export type ReasoningTriggerProps = ComponentProps<
   typeof CollapsibleTrigger
 > & {
   title?: string;
+  state: "streaming" | "done";
 };
 
 export const ReasoningTrigger = memo(
@@ -121,6 +122,7 @@ export const ReasoningTrigger = memo(
     className,
     title = "Reasoning",
     children,
+    state,
     ...props
   }: ReasoningTriggerProps) => {
     const { isStreaming, isOpen, duration } = useReasoning();
@@ -136,11 +138,16 @@ export const ReasoningTrigger = memo(
         {children ?? (
           <>
             <BrainIcon className="size-4" />
-            {isStreaming || duration === 0 ? (
+            {state === "streaming" ? (
+              <p>Thinking...</p>
+            ) : (
+              <p>Thought for a moment</p>
+            )}
+            {/* {isStreaming || duration === 0 ? (
               <p>Thinking...</p>
             ) : (
               <p>Thought for {duration} seconds</p>
-            )}
+            )} */}
             <ChevronDownIcon
               className={cn(
                 "size-4 text-muted-foreground transition-transform",

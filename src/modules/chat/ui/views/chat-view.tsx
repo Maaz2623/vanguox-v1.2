@@ -28,6 +28,12 @@ import {
   ReasoningContent,
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
+import {
+  Source,
+  Sources,
+  SourcesContent,
+  SourcesTrigger,
+} from "@/components/ai-elements/source";
 interface Props {
   previousMessages: UIMessage[];
   chatId: string;
@@ -94,85 +100,104 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
           <ConversationContent className="w-[60%] mx-auto">
             <div className="h-full pb-[40vh] z-50">
               {messages.map((message) => (
-                <Message from={message.role} key={message.id}>
-                  <MessageContent
-                    className={cn(message.role === "assistant" && "bg-white!")}
-                  >
-                    {message.parts.map((part, i) => {
-                      switch (part.type) {
-                        case "text":
-                          return (
-                            <div
-                              key={`${message.id}-${i}`}
-                              className="flex items-start gap-3"
-                            >
-                              {message.role === "assistant" && (
-                                <Image
-                                  src={modelIcon}
-                                  width={25}
-                                  height={25}
-                                  alt="model-logo"
-                                  className="rounded-full shrink-0"
-                                />
-                              )}
-                              {/* Right: Text + Actions */}
-                              <div className="flex flex-col mt-0 gap-y-2">
+                <div key={message.id}>
+                  <Message from={message.role} key={message.id}>
+                    <MessageContent
+                      className={cn(
+                        message.role === "assistant" && "bg-white!"
+                      )}
+                    >
+                      {message.parts.map((part, i) => {
+                        switch (part.type) {
+                          case "text":
+                            return (
+                              <div
+                                key={`${message.id}-${i}`}
+                                className="flex items-start gap-3"
+                              >
                                 {message.role === "assistant" && (
-                                  <span className="text-base text-muted-foreground font-semibold">
-                                    {modelName}
-                                  </span>
+                                  <Image
+                                    src={modelIcon}
+                                    width={25}
+                                    height={25}
+                                    alt="model-logo"
+                                    className="rounded-full shrink-0"
+                                  />
                                 )}
-                                <Response className="text-[15px] leading-relaxed">
-                                  {part.text}
-                                </Response>
-                                {message.role === "assistant" && (
-                                  <div className="flex gap-2 mt-2">
-                                    <Action
-                                      onClick={() => regenerate()}
-                                      label="Retry"
-                                    >
-                                      <RefreshCcwIcon className="size-3.5" />
-                                    </Action>
-                                    <Action
-                                      onClick={() =>
-                                        handleCopy(
-                                          `${message.id}-${i}`,
-                                          part.text
-                                        )
-                                      }
-                                      label="Copy"
-                                    >
-                                      {copiedId === `${message.id}-${i}` ? (
-                                        <CheckIcon className="size-3.5" />
-                                      ) : (
-                                        <CopyIcon className="size-3.5" />
-                                      )}{" "}
-                                    </Action>
-                                  </div>
-                                )}
+                                {/* Right: Text + Actions */}
+                                <div className="flex flex-col mt-0 gap-y-2">
+                                  {message.role === "assistant" && (
+                                    <span className="text-base text-muted-foreground font-semibold">
+                                      {modelName}
+                                    </span>
+                                  )}
+                                  <Response className="text-[15px] leading-relaxed">
+                                    {part.text}
+                                  </Response>
+                                  {message.role === "assistant" && (
+                                    <div className="flex gap-2 mt-2">
+                                      <Action
+                                        onClick={() => regenerate()}
+                                        label="Retry"
+                                      >
+                                        <RefreshCcwIcon className="size-3.5" />
+                                      </Action>
+                                      <Action
+                                        onClick={() =>
+                                          handleCopy(
+                                            `${message.id}-${i}`,
+                                            part.text
+                                          )
+                                        }
+                                        label="Copy"
+                                      >
+                                        {copiedId === `${message.id}-${i}` ? (
+                                          <CheckIcon className="size-3.5" />
+                                        ) : (
+                                          <CopyIcon className="size-3.5" />
+                                        )}{" "}
+                                      </Action>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          );
-                        case "reasoning":
-                          return (
-                            <Reasoning
-                              key={`${message.id}-${i}`}
-                              className="w-full"
-                              isStreaming={status === "streaming"}
-                            >
-                              <ReasoningTrigger />
-                              <ReasoningContent className="text-muted-foreground">
-                                {part.text}
-                              </ReasoningContent>
-                            </Reasoning>
-                          );
-
-                        default:
-                          return null;
-                      }
-                    })}
-                  </MessageContent>
-                </Message>
+                            );
+                          case "reasoning":
+                            switch (part.state) {
+                              case "streaming":
+                                return (
+                                  <Reasoning
+                                    key={`${message.id}-${i}`}
+                                    className="w-full"
+                                    isStreaming={status === "streaming"}
+                                  >
+                                    <ReasoningTrigger state={part.state} />
+                                    <ReasoningContent className="text-muted-foreground">
+                                      {part.text}
+                                    </ReasoningContent>
+                                  </Reasoning>
+                                );
+                              case "done":
+                                return (
+                                  <Reasoning
+                                    key={`${message.id}-${i}`}
+                                    className="w-full"
+                                    isStreaming={status === "streaming"}
+                                  >
+                                    <ReasoningTrigger state={part.state} />
+                                    <ReasoningContent className="text-muted-foreground">
+                                      {part.text}
+                                    </ReasoningContent>
+                                  </Reasoning>
+                                );
+                            }
+                          default:
+                            return null;
+                        }
+                      })}
+                    </MessageContent>
+                  </Message>
+                </div>
               ))}
               {status === "submitted" && <Loader className="ml-5 mt-5" />}
             </div>
