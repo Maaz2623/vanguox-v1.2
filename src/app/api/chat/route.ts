@@ -1,6 +1,8 @@
 import { saveChat } from "@/ai/functions";
+import { myToolSet } from "@/ai/tools";
 import { auth } from "@/lib/auth/auth";
 import { Model } from "@/modules/chat/hooks/types";
+import { systemPrompt } from "@/prompt";
 import {
   streamText,
   UIMessage,
@@ -27,11 +29,14 @@ export async function POST(req: Request) {
     }: { messages: UIMessage[]; model: Model["id"]; chatId: string } = body;
     const result = streamText({
       model: model,
+      tools: myToolSet,
       messages: convertToModelMessages(messages),
+      system: systemPrompt,
       experimental_transform: smoothStream({
         chunking: "word",
         delayInMs: 25,
       }),
+      toolChoice: "auto",
     });
 
     return result.toUIMessageStreamResponse({

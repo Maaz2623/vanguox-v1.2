@@ -131,7 +131,7 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                                       {modelName}
                                     </span>
                                   )}
-                                  <Response className="text-[15px] leading-relaxed">
+                                  <Response className="text-[15px] leading-relaxed max-w-[40vw] overflow-x-auto!">
                                     {part.text}
                                   </Response>
                                   {message.role === "assistant" && (
@@ -162,6 +162,18 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                                 </div>
                               </div>
                             );
+                          case "tool-appBuilder":
+                            switch (part.state) {
+                              case "input-available":
+                                return <div key={i}>Building your app..</div>;
+                              case "output-available":
+                                return <div key={i}>Built</div>;
+                            }
+                          case "tool-webSearcher":
+                            switch (part.state) {
+                              case "input-available":
+                                return <div key={i}>Searching the web</div>;
+                            }
                           case "reasoning":
                             switch (part.state) {
                               case "streaming":
