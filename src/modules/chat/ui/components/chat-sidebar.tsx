@@ -7,8 +7,18 @@ import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authClient } from "@/lib/auth/auth-client";
 import { cn } from "@/lib/utils";
+import { useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { usePathname } from "next/navigation";
+import { useChatIdStore } from "../../hooks/chatId-store";
 
-export const ChatSidebar = () => {
+interface Props {
+  userId: string;
+}
+
+export const ChatSidebar = ({ userId }: Props) => {
   const [open, setOpen] = useState(false);
 
   const { data } = authClient.useSession();
@@ -16,6 +26,14 @@ export const ChatSidebar = () => {
   const [sheetType, setSheetType] = useState<"settings" | "history" | "files">(
     "files"
   );
+
+  const { setChatId } = useChatIdStore();
+
+  const chats = useQuery(api.chats.getChats, {
+    userId: userId,
+  });
+
+  const pathname = usePathname();
 
   if (!data) {
     return;
@@ -97,7 +115,38 @@ export const ChatSidebar = () => {
           open ? "translate-x-0" : "-translate-x-[50vw]"
         )}
       >
-        <h2 className="capitalize text-xl font-medium">{sheetType}</h2>
+        {sheetType === "history" && (
+          <div className="w-full h-full flex flex-col gap-y-2">
+            <div className="flex gap-x-1 items-center">
+              <HistoryIcon className="size-5" />
+              <h2 className="text-xl">History</h2>
+            </div>
+            <Separator />
+            <ScrollArea className="flex flex-col h-[90vh] overflow-hidden space-y-2">
+              {chats?.map((item) => {
+                const isActive = pathname === `/chats/${item._id}`;
+                return (
+                  <Button
+                    key={item._id}
+                    className={cn(
+                      "",
+                      isActive && "bg-neutral-500/10 font-semibold"
+                    )}
+                    variant={`ghost`}
+                    onClick={() => {
+                      setChatId(item._id);
+                    }}
+                    asChild
+                  >
+                    <Link href={`/chats/${item._id}`}>
+                      <span className="w-[150px] truncate">{item.title}</span>
+                    </Link>
+                  </Button>
+                );
+              })}
+            </ScrollArea>
+          </div>
+        )}
       </div>
     </div>
   );

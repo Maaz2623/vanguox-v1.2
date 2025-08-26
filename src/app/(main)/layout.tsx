@@ -21,7 +21,7 @@ export default async function MainLayout({
   return (
     <ChatProvider>
       <div className="h-screen relative flex">
-        <ChatSidebar />
+        <ChatSidebar userId={authData.user.id} />
         <div className=" w-full h-screen">
           {children}
           <ChatInput />

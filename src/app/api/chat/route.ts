@@ -1,4 +1,4 @@
-import { saveChat } from "@/ai/functions";
+import { saveChat, updateChatTitle } from "@/ai/functions";
 import { appBuilder, imageGenerator, webSearcher } from "@/ai/tools";
 import { Model } from "@/modules/chat/hooks/types";
 import { systemPrompt } from "@/prompt";
@@ -44,6 +44,14 @@ export async function POST(req: Request) {
       size: 16,
     }),
     onFinish: async ({ messages: updatedMessages }) => {
+      if (messages.length < 2) {
+        updateChatTitle({
+          chatId: chatId,
+          messages,
+          model: model,
+        });
+      }
+
       const reversed = [...updatedMessages].reverse();
 
       const assistantMessage = reversed.find(
