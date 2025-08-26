@@ -7,6 +7,7 @@ import {
   UIMessage,
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
+import { useModelStore } from "../../hooks/model-store";
 
 interface ChatContextValue {
   messages: UIMessage[];
@@ -25,9 +26,13 @@ export function ChatProvider({
   children: ReactNode;
   initialMessages?: UIMessage[];
 }) {
+  const { model } = useModelStore();
+
   const { messages, sendMessage, regenerate, status, setMessages } = useChat({
     messages: initialMessages,
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    transport: new DefaultChatTransport({ api: "/api/chat", body: {
+      model: model.id
+    } }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
   });
 

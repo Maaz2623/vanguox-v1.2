@@ -1,3 +1,4 @@
+import { Model } from "@/modules/chat/hooks/types";
 import { systemPrompt, webSearcherPrompt } from "@/prompt";
 import {
   convertToModelMessages,
@@ -12,10 +13,11 @@ import z from "zod";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const { messages, model }: { messages: UIMessage[]; model: Model["id"] } =
+    await req.json();
 
   const result = streamText({
-    model: "openai/gpt-4.1",
+    model: model,
     system: `
   You are a helpful assistant.
   - If a tool is called, wait for its result.
@@ -45,6 +47,8 @@ export async function POST(req: Request) {
     },
   });
   return result.toUIMessageStreamResponse({
+    sendReasoning: true,
+    sendSources: true,
     originalMessages: messages,
     onFinish: async ({ messages: updatedMessages }) => {
       console.log(
