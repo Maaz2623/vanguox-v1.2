@@ -34,7 +34,7 @@ export const GeneratedImage = ({ src, alt }: Props) => {
 
   return (
     <span
-      className="inline-block relative rounded-lg my-3"
+      className="inline-block relative rounded-lg my-3 cursor-pointer"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >

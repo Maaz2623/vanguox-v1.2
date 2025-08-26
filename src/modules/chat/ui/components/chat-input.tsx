@@ -89,7 +89,7 @@ export const ChatInput = () => {
   return (
     <div
       className={cn(
-        "absolute md:w-[60%] w-full bg-white px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[20%] pb-2 transition-all duration-500",
+        "absolute md:w-[60%] w-full bg-white border px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[20%] pb-2 transition-all duration-500",
         pathname !== "/" && "bottom-0"
       )}
     >

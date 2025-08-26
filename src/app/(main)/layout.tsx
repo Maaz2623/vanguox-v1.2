@@ -21,6 +21,8 @@ export default async function MainLayout({
   return (
     <ChatProvider>
       <div className="h-screen relative flex">
+        <div className="h-[20vh] absolute top-0 right-0 w-[100px] bg-gradient-to-t from-transparent to-background z-50" />
+        <div className="h-[20vh] absolute bottom-0 right-0 w-[100px] bg-gradient-to-b from-transparent to-background z-50" />
         <ChatSidebar userId={authData.user.id} />
         <div className=" w-full h-screen">
           {children}
