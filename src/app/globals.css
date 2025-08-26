@@ -169,3 +169,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Works for Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 6px; /* thin */
+  height: 6px; /* for horizontal scroll */
+}
+
+::-webkit-scrollbar-track {
+  background: #014357; /* hide the track/path */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888888; /* scrollbar thumb */
+  border-radius: 10px;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #014357 transparent; /* thumb | track */
+}
