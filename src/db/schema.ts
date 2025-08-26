@@ -1,3 +1,4 @@
+import { Model } from "@/modules/chat/hooks/types";
 import { UIMessage } from "ai";
 import { boolean, jsonb } from "drizzle-orm/pg-core";
 import { timestamp } from "drizzle-orm/pg-core";

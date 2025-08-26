@@ -33,7 +33,7 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
   const { pendingMessage, setPendingMessage } = useChatStore();
   const { model } = useModelStore();
 
-  const { messages, sendMessage, regenerate, status, clearChat, setMessages } =
+  const { messages, sendMessage, regenerate, status, setMessages } =
     useSharedChatContext();
 
   useEffect(() => {

@@ -21,7 +21,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { startTransition, useState } from "react";
 import { useChatStore } from "../../hooks/chat-store";
 import { useSharedChatContext } from "./chat-context";
-import { useModelStore } from "../../hooks/model-store";
+import { useHydratedModel, useModelStore } from "../../hooks/model-store";
 import { Model } from "../../hooks/types";
 import {
   DefaultChatTransport,
@@ -32,13 +32,14 @@ import { useMutation } from "convex/react";
 import { authClient } from "@/lib/auth/auth-client";
 import { useChatIdStore } from "../../hooks/chatId-store";
 import { ModelCombobox } from "@/components/model-combo-box";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const ChatInput = () => {
   const [text, setText] = useState<string>("");
 
   const { chatId, setChatId } = useChatIdStore();
 
-  const { setModel: setAiModel, model } = useModelStore();
+  const { setModel: setAiModel, model, hydrated } = useHydratedModel();
   const { clearChat, sendMessage, status } = useSharedChatContext();
 
   const pathname = usePathname();
@@ -103,11 +104,15 @@ export const ChatInput = () => {
             <PromptInputButton>
               <MicIcon size={16} />
             </PromptInputButton>
-            <ModelCombobox
-              models={models}
-              value={model.id}
-              onChange={(selectedModel) => setAiModel(selectedModel)}
-            />
+            {hydrated ? (
+              <ModelCombobox
+                models={models}
+                value={model.id}
+                onChange={(selectedModel) => setAiModel(selectedModel)}
+              />
+            ) : (
+              <Skeleton className="w-[150px] h-8 bg-neutral-200" />
+            )}
             {/* <PromptInputModelSelect
               onValueChange={(value) => {
                 // Find the model
