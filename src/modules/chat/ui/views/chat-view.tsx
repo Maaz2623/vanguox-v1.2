@@ -70,16 +70,6 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const [input, setInput] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (input.trim()) {
-      sendMessage({ text: input });
-      setInput("");
-    }
-  };
-
   return (
     <div className="mx-auto relative size-full h-screen w-full overflow-hidden">
       <div className="flex flex-col h-screen overflow-hidden">
@@ -203,15 +193,6 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
-        {/* <PromptInput onSubmit={handleSubmit} className="mt-">
-          <PromptInputTextarea
-            onChange={(e) => setInput(e.target.value)}
-            value={input}
-          />
-          <PromptInputToolbar>
-            <PromptInputSubmit disabled={!input} status={status} />
-          </PromptInputToolbar>
-        </PromptInput> */}
       </div>
     </div>
   );
