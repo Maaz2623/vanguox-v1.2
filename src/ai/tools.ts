@@ -16,7 +16,6 @@ export const myToolSet = {
           prompt: prompt,
           system: webSearcherPrompt,
         });
-        console.log(result.content);
         return result.text;
       } catch (error) {
         console.log(error);

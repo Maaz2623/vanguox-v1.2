@@ -23,7 +23,10 @@ import { useChatStore } from "../../hooks/chat-store";
 import { useSharedChatContext } from "./chat-context";
 import { useModelStore } from "../../hooks/model-store";
 import { Model } from "../../hooks/types";
-import { DefaultChatTransport } from "ai";
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithToolCalls,
+} from "ai";
 import { api } from "../../../../../convex/_generated/api";
 import { useMutation } from "convex/react";
 import { authClient } from "@/lib/auth/auth-client";
@@ -36,13 +39,7 @@ export const ChatInput = () => {
   const { chatId, setChatId } = useChatIdStore();
 
   const { setModel: setAiModel, model } = useModelStore();
-  const { chat, clearChat } = useSharedChatContext();
-  const { sendMessage, status } = useChat({
-    chat,
-    transport: new DefaultChatTransport({
-      api: `/api/chat`,
-    }),
-  });
+  const { clearChat, sendMessage, status } = useSharedChatContext();
 
   const pathname = usePathname();
   const router = useRouter();

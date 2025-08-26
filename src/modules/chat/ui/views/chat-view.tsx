@@ -7,18 +7,13 @@ import {
 import { models } from "@/constants";
 import { useEffect, useRef, useState } from "react";
 import { Message, MessageContent } from "@/components/ai-elements/message";
-import { useChat } from "@ai-sdk/react";
 import { Response } from "@/components/ai-elements/response";
 import { useChatStore } from "../../hooks/chat-store";
 import { useSharedChatContext } from "../components/chat-context";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useModelStore } from "../../hooks/model-store";
-import {
-  DefaultChatTransport,
-  lastAssistantMessageIsCompleteWithToolCalls,
-  UIMessage,
-} from "ai";
+import { UIMessage } from "ai";
 import { Action } from "@/components/ai-elements/actions";
 import { CheckIcon, CopyIcon, RefreshCcwIcon } from "lucide-react";
 import { Loader } from "@/components/ai-elements/loader";
@@ -28,12 +23,6 @@ import {
   ReasoningContent,
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
-import {
-  Source,
-  Sources,
-  SourcesContent,
-  SourcesTrigger,
-} from "@/components/ai-elements/source";
 interface Props {
   previousMessages: UIMessage[];
   chatId: string;
@@ -41,29 +30,17 @@ interface Props {
 
 export const ChatView = ({ previousMessages, chatId }: Props) => {
   const { chatId: storeChatId, setChatId } = useChatIdStore();
-  const { chat } = useSharedChatContext();
   const { pendingMessage, setPendingMessage } = useChatStore();
   const { model } = useModelStore();
 
+  const { messages, sendMessage, regenerate, status, clearChat, setMessages } =
+    useSharedChatContext();
+
   useEffect(() => {
     if (previousMessages?.length) {
-      chat.messages = previousMessages; // directly set into Chat instance
+      setMessages(previousMessages); // directly set into Chat instance
     }
-  }, [previousMessages, chat, chatId]);
-
-  const { messages, sendMessage, regenerate, status } = useChat({
-    chat,
-    messages: previousMessages,
-    transport: new DefaultChatTransport({
-      api: `/api/chat`,
-      body: {
-        chatId: chatId,
-        model: model.id,
-      },
-    }),
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-  });
-
+  }, [previousMessages, chatId]);
   const sentRef = useRef(false);
 
   useEffect(() => {
@@ -91,6 +68,16 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const [input, setInput] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      sendMessage({ text: input });
+      setInput("");
+    }
   };
 
   return (
@@ -216,6 +203,15 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
+        {/* <PromptInput onSubmit={handleSubmit} className="mt-">
+          <PromptInputTextarea
+            onChange={(e) => setInput(e.target.value)}
+            value={input}
+          />
+          <PromptInputToolbar>
+            <PromptInputSubmit disabled={!input} status={status} />
+          </PromptInputToolbar>
+        </PromptInput> */}
       </div>
     </div>
   );
