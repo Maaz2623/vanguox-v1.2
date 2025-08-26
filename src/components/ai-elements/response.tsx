@@ -5,6 +5,7 @@ import { type ComponentProps, memo, useState } from "react";
 import { Streamdown } from "streamdown";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import Image from "next/image";
+import { GeneratedImage } from "./custom/generated-image";
 
 type ResponseProps = ComponentProps<typeof Streamdown>;
 
@@ -25,16 +26,7 @@ export const Response = memo(
               }
 
               const isBase64 = src.startsWith("data:image");
-              return (
-                <Image
-                  src={src}
-                  alt={alt ?? ""}
-                  width={350}
-                  height={250}
-                  unoptimized={isBase64}
-                  className="rounded-lg shadow-md object-contain my-3"
-                />
-              );
+              return <GeneratedImage src={src} alt={alt || ""} />;
             },
             a: ({ href, children, className, ...props }) => {
               if (typeof href === "string") {
@@ -45,7 +37,7 @@ export const Response = memo(
                       alt={href ?? ""}
                       width={350}
                       height={250}
-                      className="rounded-lg shadow-md object-contain my-3"
+                      className="rounded-lg shadow-none border object-contain my-3"
                     />
                   );
                 }
