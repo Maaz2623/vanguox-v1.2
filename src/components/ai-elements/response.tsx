@@ -25,7 +25,6 @@ export const Response = memo(
                 return null; // or fallback UI
               }
 
-              const isBase64 = src.startsWith("data:image");
               return <GeneratedImage src={src} alt={alt || ""} />;
             },
             a: ({ href, children, className, ...props }) => {

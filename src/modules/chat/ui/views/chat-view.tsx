@@ -70,6 +70,25 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const safeRegenerate = () => {
+    // Only regenerate if the last assistant message has valid content
+    const lastAssistant = [...messages]
+      .reverse()
+      .find((m) => m.role === "assistant");
+
+    if (
+      !lastAssistant ||
+      !lastAssistant.parts?.some((p) => p.type === "text" && p.text.trim())
+    ) {
+      console.warn(
+        "Cannot regenerate: last assistant message has no text content."
+      );
+      return;
+    }
+
+    regenerate();
+  };
+
   return (
     <div className="mx-auto relative size-full h-screen w-full overflow-hidden">
       <div className="flex flex-col h-screen overflow-hidden">
@@ -81,7 +100,9 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                   <Message from={message.role} key={message.id}>
                     <MessageContent
                       className={cn(
-                        message.role === "assistant" && "bg-background!"
+                        message.role === "assistant" && "bg-background!",
+                        message.role === "user" &&
+                          "bg-primary/20! !rounded-tl-full !rounded-tr-full !rounded-bl-full !rounded-br-none"
                       )}
                     >
                       {message.parts.map((part, i) => {
@@ -114,7 +135,7 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                                   {message.role === "assistant" && (
                                     <div className="flex gap-2 mt-2">
                                       <Action
-                                        onClick={() => regenerate()}
+                                        onClick={safeRegenerate}
                                         label="Retry"
                                       >
                                         <RefreshCcwIcon className="size-3.5" />

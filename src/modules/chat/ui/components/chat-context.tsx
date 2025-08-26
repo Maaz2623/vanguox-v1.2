@@ -16,6 +16,7 @@ interface ChatContextValue {
   status: ReturnType<typeof useChat>["status"];
   clearChat: () => void;
   setMessages: ReturnType<typeof useChat>["setMessages"]; // 👈 add this
+  stop: ReturnType<typeof useChat>["stop"];
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined);
@@ -28,13 +29,17 @@ export function ChatProvider({
 }) {
   const { model } = useModelStore();
 
-  const { messages, sendMessage, regenerate, status, setMessages } = useChat({
-    messages: initialMessages,
-    transport: new DefaultChatTransport({ api: "/api/chat", body: {
-      model: model.id
-    } }),
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-  });
+  const { messages, sendMessage, regenerate, status, setMessages, stop } =
+    useChat({
+      messages: initialMessages,
+      transport: new DefaultChatTransport({
+        api: "/api/chat",
+        body: {
+          model: model.id,
+        },
+      }),
+      sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    });
 
   const clearChat = () => {
     setMessages([]); // reset messages
@@ -43,6 +48,7 @@ export function ChatProvider({
   return (
     <ChatContext.Provider
       value={{
+        stop,
         messages,
         sendMessage,
         regenerate,
