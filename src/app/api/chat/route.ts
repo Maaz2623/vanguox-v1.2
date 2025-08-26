@@ -1,16 +1,14 @@
 import { saveChat } from "@/ai/functions";
+import { appBuilder, imageGenerator, webSearcher } from "@/ai/tools";
 import { Model } from "@/modules/chat/hooks/types";
-import { systemPrompt, webSearcherPrompt } from "@/prompt";
+import { systemPrompt } from "@/prompt";
 import {
   convertToModelMessages,
   createIdGenerator,
-  generateText,
   smoothStream,
   streamText,
-  tool,
   UIMessage,
 } from "ai";
-import z from "zod";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -32,25 +30,9 @@ export async function POST(req: Request) {
       delayInMs: 25,
     }),
     tools: {
-      webSearcher: tool({
-        description: "Search through the web.",
-        inputSchema: z.object({
-          prompt: z.string("The prompt to search the web for"),
-        }),
-        execute: async ({ prompt }) => {
-          try {
-            const result = await generateText({
-              model: "perplexity/sonar",
-              prompt: prompt,
-              system: webSearcherPrompt,
-            });
-            console.log(result.content);
-            return result.content;
-          } catch (error) {
-            console.log(error);
-          }
-        },
-      }),
+      appBuilder: appBuilder,
+      webSearcher: webSearcher,
+      imageGenerator: imageGenerator(model),
     },
   });
   return result.toUIMessageStreamResponse({

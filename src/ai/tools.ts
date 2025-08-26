@@ -1,47 +1,124 @@
 import { webSearcherPrompt } from "@/prompt";
-import { generateText, tool } from "ai";
+import { experimental_generateImage, generateText, tool } from "ai";
 import z from "zod";
 import { v0 } from "v0-sdk";
+import { UTApi } from "uploadthing/server";
+import { db } from "@/db";
+import { filesTable } from "@/db/schema";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
+import { google } from "@ai-sdk/google";
 
-export const myToolSet = {
-  webSearcher: tool({
-    description: "Search through the web.",
+export const utapi = new UTApi({
+  // ...options,
+});
+
+async function base64ToFile(
+  base64: string,
+  mimeType: string,
+  filename: string
+): Promise<File> {
+  const byteString = atob(base64);
+  const arrayBuffer = new ArrayBuffer(byteString.length);
+  const intArray = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < byteString.length; i++) {
+    intArray[i] = byteString.charCodeAt(i);
+  }
+  return new File([intArray], filename, { type: mimeType });
+}
+
+export const imageGenerator = (modelId: string) =>
+  tool({
+    description: "You are an advanced ai image generator.",
     inputSchema: z.object({
-      prompt: z.string("The prompt to search the web for"),
+      prompt: z.string().describe("The prompt to generate the image from."),
     }),
     execute: async ({ prompt }) => {
       try {
-        const result = await generateText({
-          model: "perplexity/sonar",
-          prompt: prompt,
-          system: webSearcherPrompt,
+        const data = await auth.api.getSession({
+          headers: await headers(),
         });
-        return result.text;
+
+        if (!data) {
+          throw new Error("Unauthorized");
+        }
+
+        console.log(data?.user.id);
+
+        const result = await generateText({
+          model: google("gemini-2.0-flash-exp"),
+          providerOptions: {
+            google: { responseModalities: ["IMAGE", "TEXT"] },
+          },
+          prompt: prompt,
+        });
+
+        for (const file of result.files) {
+          if (file.mediaType.startsWith("image/")) {
+            const readableFile = await base64ToFile(
+              file.base64,
+              file.mediaType,
+              `file-${Date.now()}.png`
+            ); // The file object provides multiple data formats:
+            const [uploaded] = await utapi.uploadFiles([readableFile]);
+            if (!uploaded.data) {
+              throw new Error("Something went wrong");
+            }
+
+            await db.insert(filesTable).values({
+              userId: data.user.id,
+              url: uploaded.data.ufsUrl,
+              mediaType: file.mediaType,
+            });
+
+            return {
+              url: uploaded.data.ufsUrl,
+            };
+          }
+        }
       } catch (error) {
         console.log(error);
       }
     },
+  });
+export const webSearcher = tool({
+  description: "Search through the web.",
+  inputSchema: z.object({
+    prompt: z.string("The prompt to search the web for"),
   }),
-
-  appBuilder: tool({
-    description: "You are an expert coder.",
-    inputSchema: z.object({
-      prompt: z.string().describe("The prompt to build the app from."),
-    }),
-    execute: async ({ prompt }) => {
-      const result = await v0.chats.create({
-        system: "You are an expert coder",
-        message: prompt,
-        modelConfiguration: {
-          modelId: "v0-1.5-sm",
-          imageGenerations: false,
-          thinking: false,
-        },
+  execute: async ({ prompt }) => {
+    try {
+      const result = await generateText({
+        model: "perplexity/sonar",
+        prompt: prompt,
+        system: webSearcherPrompt,
       });
-      return {
-        webUrl: result.demo,
-        files: result.files,
-      };
-    },
+      console.log(result.content);
+      return result.content;
+    } catch (error) {
+      console.log(error);
+    }
+  },
+});
+
+export const appBuilder = tool({
+  description: "You are an expert coder.",
+  inputSchema: z.object({
+    prompt: z.string().describe("The prompt to build the app from."),
   }),
-};
+  execute: async ({ prompt }) => {
+    const result = await v0.chats.create({
+      system: "You are an expert coder",
+      message: prompt,
+      modelConfiguration: {
+        modelId: "v0-1.5-sm",
+        imageGenerations: false,
+        thinking: false,
+      },
+    });
+    return {
+      webUrl: result.demo,
+      files: result.files,
+    };
+  },
+});

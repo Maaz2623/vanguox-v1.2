@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { type ComponentProps, memo, useState } from "react";
 import { Streamdown } from "streamdown";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import Image from "next/image";
 
 type ResponseProps = ComponentProps<typeof Streamdown>;
 
@@ -18,8 +19,36 @@ export const Response = memo(
       <div className="relative size-full">
         <Streamdown
           components={{
+            img: ({ src, alt }) => {
+              if (typeof src !== "string") {
+                return null; // or fallback UI
+              }
+
+              const isBase64 = src.startsWith("data:image");
+              return (
+                <Image
+                  src={src}
+                  alt={alt ?? ""}
+                  width={350}
+                  height={250}
+                  unoptimized={isBase64}
+                  className="rounded-lg shadow-md object-contain my-3"
+                />
+              );
+            },
             a: ({ href, children, className, ...props }) => {
               if (typeof href === "string") {
+                if (href.includes("ufs.sh")) {
+                  return (
+                    <Image
+                      src={href}
+                      alt={href ?? ""}
+                      width={350}
+                      height={250}
+                      className="rounded-lg shadow-md object-contain my-3"
+                    />
+                  );
+                }
                 // ---- Spotify embed ----
                 if (href.includes("open.spotify.com")) {
                   const embedUrl = href.replace(

@@ -1,6 +1,6 @@
 import { Model } from "@/modules/chat/hooks/types";
 import { UIMessage } from "ai";
-import { boolean, jsonb } from "drizzle-orm/pg-core";
+import { boolean, jsonb, uuid } from "drizzle-orm/pg-core";
 import { timestamp } from "drizzle-orm/pg-core";
 import { text } from "drizzle-orm/pg-core";
 import { pgTable } from "drizzle-orm/pg-core";
@@ -70,6 +70,21 @@ export const messagesTable = pgTable("messages", {
   modelId: text("model_id").notNull(),
   message: jsonb("message").$type<UIMessage>().notNull(),
   chatId: text("chat_id").notNull(),
+  createdAt: timestamp("created_at").$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+  updatedAt: timestamp("updated_at").$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+});
+
+export const filesTable = pgTable("files", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  url: text("url").notNull(),
+  mediaType: text("media_type").notNull(),
+  userId: text("user_id")
+    .references(() => user.id)
+    .notNull(),
   createdAt: timestamp("created_at").$defaultFn(
     () => /* @__PURE__ */ new Date()
   ),
