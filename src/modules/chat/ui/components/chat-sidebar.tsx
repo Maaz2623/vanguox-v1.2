@@ -36,7 +36,7 @@ export const ChatSidebar = ({ userId }: Props) => {
   const pathname = usePathname();
 
   if (!data) {
-    return;
+    return null;
   }
 
   return (
@@ -46,6 +46,7 @@ export const ChatSidebar = ({ userId }: Props) => {
         setOpen(false);
       }}
     >
+      {/* Sidebar icons */}
       <div
         onMouseEnter={() => {
           setOpen(true);
@@ -61,7 +62,7 @@ export const ChatSidebar = ({ userId }: Props) => {
         />
 
         <div className="h-full mt-4 mx-auto flex flex-col z-50">
-          <Button variant={`outline`} size={`sm`} asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href={`/`}>
               <PlusIcon />
             </Link>
@@ -71,15 +72,14 @@ export const ChatSidebar = ({ userId }: Props) => {
               onMouseEnter={() => {
                 setSheetType("files");
               }}
-              variant={`ghost`}
-              size={`sm`}
-              style={{}}
+              variant="ghost"
+              size="sm"
             >
               <FilesIcon />
             </Button>
             <Button
-              variant={`ghost`}
-              size={`sm`}
+              variant="ghost"
+              size="sm"
               onMouseEnter={() => {
                 setSheetType("history");
               }}
@@ -89,8 +89,8 @@ export const ChatSidebar = ({ userId }: Props) => {
           </div>
           <div className="h-full mt-auto flex flex-col justify-end pb-4 gap-y-2">
             <Button
-              variant={`ghost`}
-              size={`sm`}
+              variant="ghost"
+              size="sm"
               onMouseEnter={() => {
                 setSheetType("settings");
               }}
@@ -107,14 +107,14 @@ export const ChatSidebar = ({ userId }: Props) => {
         </div>
       </div>
 
-      {/* Sheet controlled by state */}
-      {/* Sheet controlled by state */}
+      {/* 🔹 Slide-in sheet */}
       <div
         className={cn(
           "h-[98vh] w-[15%] border -z-50 absolute left-[4.5vw] top-2 px-2 py-3 rounded-lg bg-background  transition-transform duration-300 ease-in-out",
           open ? "translate-x-0" : "-translate-x-[50vw]"
         )}
       >
+        {/* History Sheet */}
         {sheetType === "history" && (
           <div className="w-full h-full flex flex-col gap-y-2">
             <div className="flex gap-x-1 items-center">
@@ -132,7 +132,7 @@ export const ChatSidebar = ({ userId }: Props) => {
                       "",
                       isActive && "bg-neutral-500/10 font-semibold"
                     )}
-                    variant={`ghost`}
+                    variant="ghost"
                     onClick={() => {
                       setChatId(item._id);
                     }}
@@ -144,6 +144,42 @@ export const ChatSidebar = ({ userId }: Props) => {
                   </Button>
                 );
               })}
+            </ScrollArea>
+          </div>
+        )}
+
+        {/* Files Sheet (Dummy Data) */}
+        {sheetType === "files" && (
+          <div className="w-full h-full flex flex-col gap-y-2">
+            <div className="flex gap-x-1 items-center">
+              <FilesIcon className="size-5" />
+              <h2 className="text-xl">Files</h2>
+            </div>
+            <Separator />
+            <ScrollArea className="flex flex-col h-[90vh] space-y-2">
+              {["resume.pdf", "design.png", "notes.txt"].map((file, i) => (
+                <Button key={i} variant="ghost" className="justify-start">
+                  {file}
+                </Button>
+              ))}
+            </ScrollArea>
+          </div>
+        )}
+
+        {/* Settings Sheet (Dummy Data) */}
+        {sheetType === "settings" && (
+          <div className="w-full h-full flex flex-col gap-y-2">
+            <div className="flex gap-x-1 items-center">
+              <SettingsIcon className="size-5" />
+              <h2 className="text-xl">Settings</h2>
+            </div>
+            <Separator />
+            <ScrollArea className="flex flex-col h-[90vh] space-y-2">
+              {["Profile", "Preferences", "Billing"].map((item, i) => (
+                <Button key={i} variant="ghost" className="justify-start">
+                  {item}
+                </Button>
+              ))}
             </ScrollArea>
           </div>
         )}

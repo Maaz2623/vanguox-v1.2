@@ -81,7 +81,7 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                   <Message from={message.role} key={message.id}>
                     <MessageContent
                       className={cn(
-                        message.role === "assistant" && "bg-white!"
+                        message.role === "assistant" && "bg-background!"
                       )}
                     >
                       {message.parts.map((part, i) => {
