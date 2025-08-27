@@ -10,7 +10,7 @@ import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Response } from "@/components/ai-elements/response";
 import { useChatStore } from "../../hooks/chat-store";
 import { useSharedChatContext } from "../components/chat-context";
-import { cn } from "@/lib/utils";
+import { cn, sanitizeText } from "@/lib/utils";
 import Image from "next/image";
 import { useModelStore } from "../../hooks/model-store";
 import { UIMessage } from "ai";
@@ -107,6 +107,17 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                     >
                       {message.parts.map((part, i) => {
                         switch (part.type) {
+                          case "reasoning":
+                            return (
+                              <Reasoning
+                                key={`${message.id}-${i}`}
+                                className="w-full"
+                                isStreaming={status === "streaming"}
+                              >
+                                <ReasoningTrigger />
+                                <ReasoningContent>{part.text}</ReasoningContent>
+                              </Reasoning>
+                            );
                           case "text":
                             return (
                               <div
@@ -130,10 +141,10 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                                     </span>
                                   )}
                                   <Response className="text-[15px] leading-relaxed max-w-[40vw] overflow-x-auto!">
-                                    {part.text}
+                                    {sanitizeText(part.text)}
                                   </Response>
                                   {message.role === "assistant" && (
-                                    <div className="flex gap-2 mt-2">
+                                    <div className="flex gap-2 mt-2 mb-4">
                                       <Action
                                         onClick={safeRegenerate}
                                         label="Retry"
@@ -177,37 +188,6 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                               case "input-available":
                                 return <div key={i}>Generating your image</div>;
                             }
-                          case "reasoning":
-                            switch (part.state) {
-                              case "streaming":
-                                return (
-                                  <Reasoning
-                                    key={`${message.id}-${i}`}
-                                    className="w-full"
-                                    isStreaming={status === "streaming"}
-                                  >
-                                    <ReasoningTrigger state={part.state} />
-                                    <ReasoningContent className="text-muted-foreground">
-                                      {part.text}
-                                    </ReasoningContent>
-                                  </Reasoning>
-                                );
-                              case "done":
-                                return (
-                                  <Reasoning
-                                    key={`${message.id}-${i}`}
-                                    className="w-full"
-                                    isStreaming={status === "streaming"}
-                                  >
-                                    <ReasoningTrigger state={part.state} />
-                                    <ReasoningContent className="text-muted-foreground">
-                                      {part.text}
-                                    </ReasoningContent>
-                                  </Reasoning>
-                                );
-                            }
-                          default:
-                            return null;
                         }
                       })}
                     </MessageContent>

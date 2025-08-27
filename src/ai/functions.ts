@@ -9,6 +9,7 @@ import { eq, inArray } from "drizzle-orm";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+
 export async function updateChatTitle({
   messages,
   chatId,
