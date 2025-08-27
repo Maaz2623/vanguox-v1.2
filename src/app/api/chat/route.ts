@@ -1,5 +1,5 @@
 import { saveChat, updateChatTitle } from "@/ai/functions";
-import { appBuilder, imageGenerator, webSearcher } from "@/ai/tools";
+import { appBuilder, emailSender, imageGenerator, webSearcher } from "@/ai/tools";
 import { Model } from "@/modules/chat/hooks/types";
 import { systemPrompt } from "@/prompt";
 import {
@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       appBuilder: appBuilder,
       webSearcher: webSearcher,
       imageGenerator: imageGenerator(model),
+      emailSender: emailSender
     },
   });
   return result.toUIMessageStreamResponse({
