@@ -8,10 +8,14 @@ import { filesTable } from "@/db/schema";
 import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import { google } from "@ai-sdk/google";
+import { Resend } from 'resend';
 
 export const utapi = new UTApi({
   // ...options,
 });
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 async function base64ToFile(
   base64: string,
@@ -81,6 +85,46 @@ export const imageGenerator = (modelId: string) =>
       }
     },
   });
+
+export const emailSender = tool({
+    description: "Send an email to any recipient.",
+    inputSchema: z.object({
+      to: z.email().describe("The recipient's email address."),
+      subject: z.string().describe("The subject of the email."),
+      message: z.string().describe("The plain text body of the email."),
+    }),
+    execute: async ({ to, subject, message }) => {
+      try {
+
+        const authData = await auth.api.getSession({
+          headers: await headers()
+        })
+
+        const senderName = authData?.user.name
+
+        const data = await resend.emails.send({
+          from: `${senderName || 'Your App'} ^${authData?.user.email}^ <no-reply@vanguox.com>`, // must be your verified domain
+          to: [to],
+          subject,
+          text: message,
+        });
+
+        console.log(data)
+
+        return {
+          message: "Email sent successfully."
+        };
+      } catch (error) {
+        console.error("Email send failed:", error);
+        return {
+          success: false,
+          error: (error as Error).message
+        };
+      }
+    }
+  }),
+
+
 export const webSearcher = tool({
   description: "Search through the web.",
   inputSchema: z.object({
