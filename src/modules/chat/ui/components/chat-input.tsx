@@ -26,6 +26,7 @@ import { authClient } from "@/lib/auth/auth-client";
 import { useChatIdStore } from "../../hooks/chatId-store";
 import { ModelCombobox } from "@/components/model-combo-box";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export const ChatInput = () => {
   const [text, setText] = useState<string>("");
@@ -85,7 +86,7 @@ export const ChatInput = () => {
   return (
     <div
       className={cn(
-        "absolute md:w-[60%] w-full bg-background px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[20%] pb-2 transition-all duration-500",
+        "absolute md:w-[70%]  w-[97vw] bg-background px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[20%] pb-2 transition-all duration-500",
         pathname !== "/" && "bottom-0"
       )}
     >

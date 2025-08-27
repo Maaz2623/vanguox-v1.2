@@ -1,10 +1,12 @@
 "use client";
 
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import Image from "next/image";
 
 export const HomeView = () => {
   return (
-    <div className="absolute top-0 left-0 h-screen w-full flex items-starts justify-center">
+    <div className="absolute  top-0 left-0 h-screen w-full flex items-starts justify-center">
+      <SidebarTrigger className="absolute top-5 left-5" />
       <div
         className={
           "flex flex-col items-center text-center mt-[30vh] md:mt-[10%]"

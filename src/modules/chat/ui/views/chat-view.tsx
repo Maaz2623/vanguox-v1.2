@@ -23,6 +23,9 @@ import {
   ReasoningContent,
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { ChatViewSiteHeader } from "../components/sidebar/chat-view-site-header";
 interface Props {
   previousMessages: UIMessage[];
   chatId: string;
@@ -64,6 +67,10 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  const isMobile = useIsMobile();
+
+  const { open } = useSidebar();
+
   const handleCopy = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
@@ -91,9 +98,15 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
 
   return (
     <div className="mx-auto relative size-full h-screen w-full overflow-hidden">
+      {!isMobile && (
+        <SidebarTrigger className="absolute top-5 left-5 z-[1000] size-8" />
+      )}
+      {isMobile && <ChatViewSiteHeader chatId={chatId} />}
       <div className="flex flex-col h-screen overflow-hidden">
         <Conversation className="max-h-screen  overflow-hidden  w-full">
-          <ConversationContent className="w-[60%] mx-auto">
+          <ConversationContent
+            className={cn("w-[70%] mx-auto", isMobile && "w-full")}
+          >
             <div className="h-full pb-[40vh] z-50">
               {messages.map((message) => (
                 <div key={message.id}>
@@ -102,7 +115,7 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                       className={cn(
                         message.role === "assistant" && "bg-background!",
                         message.role === "user" &&
-                          "bg-primary/20! !rounded-tl-full !rounded-tr-full !rounded-bl-full !rounded-br-none"
+                          "dark:bg-primary/20! !rounded-tl-full !rounded-tr-full !rounded-bl-full !rounded-br-none"
                       )}
                     >
                       {message.parts.map((part, i) => {
@@ -140,7 +153,13 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                                       {modelName}
                                     </span>
                                   )}
-                                  <Response className="text-[15px] leading-relaxed max-w-[40vw] overflow-x-auto!">
+                                  <Response
+                                    className={cn(
+                                      "text-[15px] leading-relaxed max-w-[40vw]! overflow-x-auto!",
+                                      isMobile && "text-[14px] max-w-[60vw]!",
+                                      open && !isMobile && "max-w-[35vw]!"
+                                    )}
+                                  >
                                     {sanitizeText(part.text)}
                                   </Response>
                                   {message.role === "assistant" && (
