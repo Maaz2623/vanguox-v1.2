@@ -10,9 +10,6 @@ import {
   UIMessage,
 } from "ai";
 
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
-
 export async function POST(req: Request) {
   const {
     messages,
@@ -36,6 +33,7 @@ export async function POST(req: Request) {
       emailSender: emailSender
     },
   });
+
   return result.toUIMessageStreamResponse({
     sendReasoning: true,
     sendSources: true,
@@ -83,6 +81,10 @@ export async function POST(req: Request) {
         messages: [userMessage, assistantMessage],
         modelId: model,
       });
+
+      const fullUsage = await result.usage;
+
+      console.log(fullUsage);
     },
   });
 }

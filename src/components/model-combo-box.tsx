@@ -75,7 +75,7 @@ export function ModelCombobox({
           <CommandInput placeholder="Search model..." />
 
           {/* ✅ Scrollable grouped list */}
-          <ScrollArea className="max-h-64">
+          <ScrollArea className="max-h-[300px]">
             <CommandList>
               <CommandEmpty>No model found.</CommandEmpty>
 
