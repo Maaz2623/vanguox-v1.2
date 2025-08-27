@@ -1,6 +1,6 @@
 import { Model } from "@/modules/chat/hooks/types";
-import { UIMessage } from "ai";
-import { boolean, jsonb, uuid } from "drizzle-orm/pg-core";
+import { LanguageModelUsage, UIMessage } from "ai";
+import { boolean, integer, jsonb, uuid } from "drizzle-orm/pg-core";
 import { timestamp } from "drizzle-orm/pg-core";
 import { text } from "drizzle-orm/pg-core";
 import { pgTable } from "drizzle-orm/pg-core";
@@ -19,6 +19,7 @@ export const user = pgTable("user", {
   updatedAt: timestamp("updated_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
+  usage: jsonb("usage").$type<LanguageModelUsage>(),
 });
 
 export const session = pgTable("session", {

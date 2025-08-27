@@ -4,11 +4,11 @@ import { UIMessage, convertToModelMessages, generateText } from "ai";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../convex/_generated/api";
 import { db } from "@/db";
+
 import { messagesTable } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
 
 export async function updateChatTitle({
   messages,

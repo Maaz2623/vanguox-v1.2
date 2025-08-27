@@ -1,3 +1,5 @@
+import { StreamTextResult } from "ai";
+
 export type Model = {
   id: // Anthropic
   | "anthropic/claude-sonnet-4"
@@ -249,3 +251,5 @@ export type Model = {
     | "/model-logos/inception.avif"
     | "/model-logos/morph.avif";
 };
+
+export type Usage = Awaited<ReturnType<StreamTextResult[""]>>

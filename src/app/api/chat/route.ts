@@ -1,5 +1,13 @@
 import { saveChat, updateChatTitle } from "@/ai/functions";
-import { appBuilder, emailSender, imageGenerator, webSearcher } from "@/ai/tools";
+import {
+  appBuilder,
+  emailSender,
+  imageGenerator,
+  webSearcher,
+} from "@/ai/tools";
+import { db } from "@/db";
+import { user } from "@/db/schema";
+import { auth } from "@/lib/auth/auth";
 import { Model } from "@/modules/chat/hooks/types";
 import { systemPrompt } from "@/prompt";
 import {
@@ -9,6 +17,8 @@ import {
   streamText,
   UIMessage,
 } from "ai";
+import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 
 export async function POST(req: Request) {
   const {
@@ -17,6 +27,14 @@ export async function POST(req: Request) {
     chatId,
   }: { messages: UIMessage[]; model: Model["id"]; chatId: string } =
     await req.json();
+
+  const authData = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!authData) {
+    throw new Error("Unauthorized");
+  }
 
   const result = streamText({
     model: model,
@@ -30,7 +48,7 @@ export async function POST(req: Request) {
       appBuilder: appBuilder,
       webSearcher: webSearcher,
       imageGenerator: imageGenerator(model),
-      emailSender: emailSender
+      emailSender: emailSender,
     },
   });
 
@@ -82,9 +100,32 @@ export async function POST(req: Request) {
         modelId: model,
       });
 
+      const [existingUsage] = await db
+        .select({ usage: user.usage })
+        .from(user)
+        .where(eq(user.id, authData.user.id));
+
       const fullUsage = await result.usage;
 
-      console.log(fullUsage);
+      const updatedUsage = {
+        inputTokens:
+          (existingUsage.usage?.inputTokens ?? 0) +
+          (fullUsage.inputTokens ?? 0),
+        outputTokens:
+          (existingUsage.usage?.outputTokens ?? 0) +
+          (fullUsage.outputTokens ?? 0),
+        totalTokens:
+          (existingUsage.usage?.totalTokens ?? 0) +
+          (fullUsage.totalTokens ?? 0),
+      };
+
+      console.log("Updating usage");
+      await db
+        .update(user)
+        .set({ usage: updatedUsage, updatedAt: new Date() })
+        .where(eq(user.id, authData.user.id));
+
+      console.log("updated usage");
     },
   });
 }
