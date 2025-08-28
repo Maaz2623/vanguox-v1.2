@@ -34,7 +34,8 @@ import {
   MessageCircleIcon,
   CrownIcon,
 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area"; // ✅ import scroll area
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Script from "next/script";
 
 interface Props {
   open: boolean;
@@ -71,6 +72,58 @@ const plans = [
 export const PlansDialog = ({ open, setOpen }: Props) => {
   const isMobile = useIsMobile();
 
+  // 🔹 Razorpay Checkout
+  const handleRazorpayPayment = async () => {
+    const orderRes = await fetch("/api/razorpay/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: 499, currency: "INR" }),
+    });
+
+    const order = await orderRes.json(); // contains order.id
+    setOpen(false);
+
+    const options: any = {
+      key: "rzp_test_RAq9fAUQXhGvuG",
+      amount: order.amount, // from backend
+      currency: order.currency,
+      name: "Vanguox",
+      description: "Pro Plan Subscription",
+      order_id: order.id, // ✅ required for signature verification
+      handler: async function (response: any) {
+        // This object now has all 3 fields
+        const data = {
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+        };
+
+        // Send to backend for verification
+        const verifyRes = await fetch("/api/razorpay/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        const result = await verifyRes.json();
+        console.log("Verification result:", result);
+      },
+      prefill: {
+        name: "Test User",
+        email: "test@example.com",
+        contact: "918296472301",
+      },
+      theme: {
+        color: "#4F46E5",
+      },
+    };
+
+    console.log(options);
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
+  };
+
   const PlansContent = () => (
     <div className="grid gap-6 sm:grid-cols-2 pb-40">
       {plans.map((plan) => (
@@ -106,11 +159,19 @@ export const PlansDialog = ({ open, setOpen }: Props) => {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" disabled={plan.name === "Free"}>
-              {plan.name === "Free"
-                ? "Current Plan"
-                : `Upgrade to ${plan.name}`}
-            </Button>
+            {plan.name === "Pro" ? (
+              <Button
+                className="w-full"
+                type="button"
+                onClick={handleRazorpayPayment}
+              >
+                Upgrade to Pro
+              </Button>
+            ) : (
+              <Button className="w-full" disabled>
+                Current Plan
+              </Button>
+            )}
           </CardFooter>
         </Card>
       ))}
@@ -119,6 +180,9 @@ export const PlansDialog = ({ open, setOpen }: Props) => {
 
   return (
     <>
+      {/* Razorpay Checkout Script */}
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+
       {!isMobile ? (
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="max-w-3xl! max-h-[80vh]!">
@@ -148,8 +212,13 @@ export const PlansDialog = ({ open, setOpen }: Props) => {
                 </DrawerDescription>
               </DrawerHeader>
 
-              {/* ✅ Make mobile drawer scrollable */}
+              {/* ✅ Scrollable Drawer */}
               <PlansContent />
+              <DrawerFooter>
+                <DrawerClose asChild>
+                  <Button variant="outline">Close</Button>
+                </DrawerClose>
+              </DrawerFooter>
             </ScrollArea>
           </DrawerContent>
         </Drawer>
