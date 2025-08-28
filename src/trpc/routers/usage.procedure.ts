@@ -2,8 +2,8 @@ import { db } from "@/db";
 import { baseProcedure, createTRPCRouter } from "../init";
 import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
+import { auth } from "@/lib/auth/auth";
 import { TRPCError } from "@trpc/server";
 
 export const usageRouter = createTRPCRouter({
@@ -18,11 +18,17 @@ export const usageRouter = createTRPCRouter({
       });
     }
 
+    if (!authData) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+      });
+    }
+
     const [result] = await db
-      .select({ usage: user.usage })
+      .select({ usedTokens: user.totalTokensUsed })
       .from(user)
       .where(eq(user.id, authData.user.id));
 
-    return result.usage;
+    return result.usedTokens;
   }),
 });

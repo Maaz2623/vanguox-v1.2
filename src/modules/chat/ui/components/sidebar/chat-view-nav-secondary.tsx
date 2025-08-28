@@ -12,7 +12,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { usePathname, useRouter } from "next/navigation";
-import { GaugeIcon, SettingsIcon } from "lucide-react";
+import { CrownIcon, GaugeIcon, SettingsIcon } from "lucide-react";
 import { cn, formatNumber } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { useQuery } from "@tanstack/react-query";
@@ -22,6 +22,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { PlansDialog } from "@/modules/subscription/ui/components/plans-dialog";
 
 export function ChatViewNavSecondary({
   ...props
@@ -45,17 +47,20 @@ export function ChatViewNavSecondary({
 
   const maxTokens = 50000;
 
-  const usedTokens = data?.totalTokens ?? 0;
+  const usedTokens = data ?? 0;
   const progressValue = Math.min((usedTokens / maxTokens) * 100, 100);
 
   const { open } = useSidebar();
 
+  const [plansDialogOpen, setPlansDialogOpen] = React.useState(false);
+
   return (
     <>
+      <PlansDialog open={plansDialogOpen} setOpen={setPlansDialogOpen} />
       <SidebarGroup {...props}>
         <SidebarGroupContent>
           <SidebarMenu>
-            <SidebarMenuItem className="">
+            <SidebarMenuItem className="mb-2">
               {!open ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -75,35 +80,64 @@ export function ChatViewNavSecondary({
                     </SidebarMenuButton>
                   </TooltipTrigger>
                   <TooltipContent side="right" className="bg-background!">
-                    <div className="h-20 text-foreground rounded-lg w-full border overflow-hidden px-2">
-                      <div className="h-[80%] items-end flex flex-col justify-start">
-                        <h2 className="w-full text-lg font-semibold mt-2">
-                          Free Plan
+                    <div className="w-full rounded-2xl border bg-card shadow-sm p-4 flex flex-col gap-3">
+                      {/* Header */}
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold tracking-tight">
+                          Free
                         </h2>
-                        <p className="mt-auto mb-1 w-full">
-                          {formatNumber(data?.totalTokens ?? 0)} /{" "}
-                          {formatNumber(maxTokens)} tokens used
-                        </p>
+                        <Button
+                          size="sm"
+                          className="rounded-full"
+                          variant="outline"
+                          onClick={() => setPlansDialogOpen(true)}
+                        >
+                          <CrownIcon className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <div className="h-[20%]">
-                        <Progress value={progressValue} />
+
+                      {/* Usage Info */}
+                      <div className="flex flex-col gap-1">
+                        <p className="text-sm text-muted-foreground">
+                          {formatNumber(data ?? 0)} / {formatNumber(maxTokens)}{" "}
+                          tokens used
+                        </p>
+                        <Progress
+                          value={progressValue}
+                          className="h-2 rounded-full"
+                        />
                       </div>
                     </div>
                   </TooltipContent>
                 </Tooltip>
               ) : (
-                <div className="h-20 rounded-lg w-full border overflow-hidden px-2">
-                  <div className="h-[80%] items-end flex flex-col justify-start">
-                    <h2 className="w-full text-xl font-semibold mt-2">
-                      Free Plan
+                <div className="w-full rounded-2xl border bg-card shadow-sm p-4 flex flex-col gap-3">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold tracking-tight">
+                      Free
                     </h2>
-                    <p className="mt-auto mb-1 w-full">
-                      {formatNumber(data?.totalTokens ?? 0)} /{" "}
-                      {formatNumber(maxTokens)} tokens used
-                    </p>
+                    <Button
+                      size="sm"
+                      className="rounded-full"
+                      variant="outline"
+                      onClick={() => setPlansDialogOpen(true)}
+                    >
+                      <CrownIcon className="h-4 w-4" />
+                      Upgrade
+                    </Button>
                   </div>
-                  <div className="h-[20%]">
-                    <Progress value={progressValue} />
+
+                  {/* Usage Info */}
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm text-muted-foreground">
+                      {formatNumber(data ?? 0)} / {formatNumber(maxTokens)}{" "}
+                      tokens used
+                    </p>
+                    <Progress
+                      value={progressValue}
+                      className="h-2 rounded-full"
+                    />
                   </div>
                 </div>
               )}

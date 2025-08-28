@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 const teams = [
   {
@@ -38,6 +39,8 @@ export function ChatViewSwitcher() {
   const { isMobile } = useSidebar();
   const [activeTeam, setActiveTeam] = React.useState(teams[0]);
 
+  const { open } = useSidebar();
+
   if (!activeTeam) {
     return null;
   }
@@ -56,7 +59,7 @@ export function ChatViewSwitcher() {
               width={500}
               height={500}
               alt="logo"
-              className=" shrink-0"
+              className={cn(" shrink-0", !open && "-ml-2")}
             />{" "}
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">

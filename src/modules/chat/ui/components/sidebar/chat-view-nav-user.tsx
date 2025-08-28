@@ -28,7 +28,13 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
-import { MonitorIcon, MoonIcon, SunIcon, SunMoonIcon } from "lucide-react";
+import {
+  CrownIcon,
+  MonitorIcon,
+  MoonIcon,
+  SunIcon,
+  SunMoonIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/auth-client";
 
@@ -118,8 +124,8 @@ export function ChatViewNavUser({
                 Account
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <IconCreditCard />
-                Billing
+                <CrownIcon />
+                Upgrade
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <IconNotification />
