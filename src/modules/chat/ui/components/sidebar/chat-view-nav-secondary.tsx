@@ -37,7 +37,7 @@ export function ChatViewNavSecondary({
     })
   );
 
-  const maxTokens = 3000000;
+  const maxTokens = 50000;
 
   const usedTokens = data?.totalTokens ?? 0;
   const progressValue = Math.min((usedTokens / maxTokens) * 100, 100);
