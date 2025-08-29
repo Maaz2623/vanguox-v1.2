@@ -45,14 +45,20 @@ export function ChatViewNavSecondary({
     })
   );
 
-  const maxTokens = 50000;
-
-  const usedTokens = data ?? 0;
-  const progressValue = Math.min((usedTokens / maxTokens) * 100, 100);
+  const { data: maxTokens } = useQuery(
+    trpc.usage.getMaxTokens.queryOptions(undefined, {
+      refetchInterval: 5000,
+    })
+  );
 
   const { open } = useSidebar();
 
   const [plansDialogOpen, setPlansDialogOpen] = React.useState(false);
+
+  if (!maxTokens) return;
+
+  const usedTokens = data ?? 0;
+  const progressValue = Math.min((usedTokens / maxTokens) * 100, 100);
 
   return (
     <>

@@ -1,5 +1,5 @@
 import { UIMessage } from "ai";
-import { boolean, integer, jsonb, uuid } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgEnum, uuid } from "drizzle-orm/pg-core";
 import { timestamp } from "drizzle-orm/pg-core";
 import { text } from "drizzle-orm/pg-core";
 import { pgTable } from "drizzle-orm/pg-core";
@@ -86,6 +86,29 @@ export const filesTable = pgTable("files", {
   userId: text("user_id")
     .references(() => user.id)
     .notNull(),
+  createdAt: timestamp("created_at").$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+  updatedAt: timestamp("updated_at").$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+});
+
+export const subscriptionTypeEnum = pgEnum("subscription_type", [
+  "free",
+  "pro",
+]);
+
+export const tokensEnum = pgEnum("subscription_type", ["free", "pro"]);
+
+export const subscriptionsTable = pgTable("subscriptions_table", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  userId: text("user_id")
+    .references(() => user.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  subscriptionType: subscriptionTypeEnum("subscription").notNull(),
   createdAt: timestamp("created_at").$defaultFn(
     () => /* @__PURE__ */ new Date()
   ),
