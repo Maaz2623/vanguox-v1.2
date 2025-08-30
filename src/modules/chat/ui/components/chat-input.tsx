@@ -26,7 +26,6 @@ import { authClient } from "@/lib/auth/auth-client";
 import { useChatIdStore } from "../../hooks/chatId-store";
 import { ModelCombobox } from "@/components/model-combo-box";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSidebar } from "@/components/ui/sidebar";
 
 export const ChatInput = () => {
   const [text, setText] = useState<string>("");

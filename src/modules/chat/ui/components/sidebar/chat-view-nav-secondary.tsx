@@ -14,6 +14,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { CrownIcon, GaugeIcon, SettingsIcon } from "lucide-react";
 import { cn, formatNumber } from "@/lib/utils";
+import CountUp from "react-countup";
 import { Progress } from "@/components/ui/progress";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
@@ -39,16 +40,14 @@ export function ChatViewNavSecondary({
 
   const trpc = useTRPC();
 
-  const { data } = useQuery(
-    trpc.usage.getUsage.queryOptions(undefined, {
-      refetchInterval: 5000,
-    })
-  );
+  const { data } = useQuery(trpc.usage.getUsage.queryOptions(undefined, {}));
 
   const { data: maxTokens } = useQuery(
-    trpc.usage.getMaxTokens.queryOptions(undefined, {
-      refetchInterval: 5000,
-    })
+    trpc.usage.getMaxTokens.queryOptions(undefined, {})
+  );
+
+  const { data: currentSubscription } = useQuery(
+    trpc.subscription.getCurrentSubscription.queryOptions()
   );
 
   const { open } = useSidebar();
@@ -59,6 +58,8 @@ export function ChatViewNavSecondary({
 
   const usedTokens = data ?? 0;
   const progressValue = Math.min((usedTokens / maxTokens) * 100, 100);
+
+  console.log("rendered");
 
   return (
     <>
@@ -89,8 +90,14 @@ export function ChatViewNavSecondary({
                     <div className="w-full rounded-2xl border bg-card shadow-sm p-4 flex flex-col gap-3">
                       {/* Header */}
                       <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-semibold tracking-tight">
-                          Free
+                        <h2 className="text-lg font-semibold tracking-tight capitalize">
+                          {currentSubscription !== undefined && (
+                            <>
+                              {currentSubscription === null
+                                ? "Free"
+                                : currentSubscription.subscriptionType}
+                            </>
+                          )}
                         </h2>
                         <Button
                           size="sm"
@@ -120,18 +127,26 @@ export function ChatViewNavSecondary({
                 <div className="w-full rounded-2xl border bg-card shadow-sm p-4 flex flex-col gap-3">
                   {/* Header */}
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold tracking-tight">
-                      Free
+                    <h2 className="text-lg font-semibold tracking-tight capitalize">
+                      {currentSubscription !== undefined && (
+                        <>
+                          {currentSubscription === null
+                            ? "free"
+                            : currentSubscription.subscriptionType}
+                        </>
+                      )}
                     </h2>
-                    <Button
-                      size="sm"
-                      className="rounded-full"
-                      variant="outline"
-                      onClick={() => setPlansDialogOpen(true)}
-                    >
-                      <CrownIcon className="h-4 w-4" />
-                      Upgrade
-                    </Button>
+                    {currentSubscription === null && (
+                      <Button
+                        size="sm"
+                        className="rounded-full"
+                        variant="outline"
+                        onClick={() => setPlansDialogOpen(true)}
+                      >
+                        <CrownIcon className="h-4 w-4" />
+                        Upgrade
+                      </Button>
+                    )}
                   </div>
 
                   {/* Usage Info */}
@@ -145,6 +160,22 @@ export function ChatViewNavSecondary({
                       className="h-2 rounded-full"
                     />
                   </div>
+
+                  {/* Ends At (only for Pro) */}
+                  {currentSubscription &&
+                    currentSubscription.subscriptionType?.toLowerCase() ===
+                      "pro" && (
+                      <p className="text-xs text-muted-foreground">
+                        Ends at{" "}
+                        {new Date(
+                          currentSubscription.billingCycleEnd
+                        ).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                    )}
                 </div>
               )}
             </SidebarMenuItem>

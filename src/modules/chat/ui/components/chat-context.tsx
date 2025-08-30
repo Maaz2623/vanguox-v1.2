@@ -8,6 +8,8 @@ import {
   lastAssistantMessageIsCompleteWithToolCalls,
 } from "ai";
 import { useModelStore } from "../../hooks/model-store";
+import { useTRPC } from "@/trpc/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ChatContextValue {
   messages: UIMessage[];
@@ -29,6 +31,10 @@ export function ChatProvider({
 }) {
   const { model } = useModelStore();
 
+  const queryClient = useQueryClient();
+
+  const trpc = useTRPC();
+
   const { messages, sendMessage, regenerate, status, setMessages, stop } =
     useChat({
       messages: initialMessages,
@@ -39,6 +45,9 @@ export function ChatProvider({
         },
       }),
       sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+      onFinish: async () => {
+        queryClient.invalidateQueries(trpc.usage.getUsage.queryOptions());
+      },
     });
 
   const clearChat = () => {

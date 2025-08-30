@@ -1,4 +1,5 @@
 import { UIMessage } from "ai";
+import { sql } from "drizzle-orm";
 import { boolean, integer, jsonb, pgEnum, uuid } from "drizzle-orm/pg-core";
 import { timestamp } from "drizzle-orm/pg-core";
 import { text } from "drizzle-orm/pg-core";
@@ -109,6 +110,14 @@ export const subscriptionsTable = pgTable("subscriptions_table", {
     })
     .notNull(),
   subscriptionType: subscriptionTypeEnum("subscription").notNull(),
+
+  billingCycleStart: timestamp("billing_cycle_start")
+    .default(sql`now()`)
+    .notNull(),
+
+  billingCycleEnd: timestamp("billing_cycle_end")
+    .default(sql`now() + interval '30 days'`)
+    .notNull(),
   createdAt: timestamp("created_at").$defaultFn(
     () => /* @__PURE__ */ new Date()
   ),
