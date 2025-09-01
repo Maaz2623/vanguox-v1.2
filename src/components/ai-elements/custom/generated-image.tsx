@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 interface Props {
   src: string;
   alt: string;
-  className: string;
+  className?: string;
 }
 
 export const GeneratedImage = ({ src, alt, className }: Props) => {
