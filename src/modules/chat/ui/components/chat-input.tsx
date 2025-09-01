@@ -14,7 +14,7 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { models } from "@/constants";
 import { cn } from "@/lib/utils";
-import { MicIcon } from "lucide-react";
+import { MicIcon, PlusIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { startTransition, useState } from "react";
 import { useChatStore } from "../../hooks/chat-store";
@@ -86,7 +86,8 @@ export const ChatInput = () => {
     <div
       className={cn(
         "absolute md:w-[70%]  w-[97vw] bg-background px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[20%] pb-2 transition-all duration-500",
-        pathname !== "/" && "bottom-0"
+        pathname !== "/" && "bottom-0",
+        pathname === "/files" && "hidden"
       )}
     >
       <PromptInput onSubmit={handleSubmit} className="bg-foreground/5">
@@ -97,8 +98,8 @@ export const ChatInput = () => {
         />
         <PromptInputToolbar className="p-2">
           <PromptInputTools>
-            <PromptInputButton>
-              <MicIcon size={16} />
+            <PromptInputButton variant={`secondary`}>
+              <PlusIcon size={16} />
             </PromptInputButton>
             {hydrated ? (
               <ModelCombobox

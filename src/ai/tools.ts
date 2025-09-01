@@ -46,8 +46,6 @@ export const imageGenerator = (modelId: string) =>
           throw new Error("Unauthorized");
         }
 
-        console.log(data?.user.id);
-
         const result = await generateText({
           model: google("gemini-2.0-flash-exp"),
           providerOptions: {

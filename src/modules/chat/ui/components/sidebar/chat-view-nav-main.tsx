@@ -80,7 +80,7 @@ export function ChatViewNavMain({ userId }: { userId: string }) {
                 </SidebarMenuButton>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <ScrollArea className="h-[200px]">
+                <ScrollArea className="h-[170px]">
                   <SidebarMenuSub>
                     {chats?.map((item) => {
                       const isActive = pathname === `/chats/${item._id}`;

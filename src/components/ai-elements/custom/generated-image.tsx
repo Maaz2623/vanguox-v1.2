@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DownloadIcon, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   src: string;
   alt: string;
+  className: string;
 }
 
-export const GeneratedImage = ({ src, alt }: Props) => {
+export const GeneratedImage = ({ src, alt, className }: Props) => {
   const [loading, setLoading] = useState(true);
   const [hovered, setHovered] = useState(false);
 
@@ -34,7 +36,10 @@ export const GeneratedImage = ({ src, alt }: Props) => {
 
   return (
     <span
-      className="inline-block relative rounded-lg my-3 cursor-pointer"
+      className={cn(
+        "inline-block relative rounded-lg my-3 cursor-pointer",
+        className
+      )}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
