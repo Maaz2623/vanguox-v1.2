@@ -53,21 +53,19 @@ const plans = [
     features: [
       { label: "Basic AI chat", icon: MessageCircleIcon },
       { label: "Community support", icon: GlobeIcon },
-      { label: "Limited tokens (5,000 / month)", icon: CrownIcon },
+      { label: "50,000 tokens / month)", icon: CrownIcon },
     ],
   },
   {
     name: "Pro",
-    price: "₹499 / month",
+    price: "₹1 / month",
     description: "Unlock all AI tools and higher limits.",
     highlight: true,
     features: [
       { label: "AI chat (priority speed)", icon: MessageCircleIcon },
       { label: "Image generation", icon: ImageIcon },
       { label: "Web search integration", icon: GlobeIcon },
-      { label: "Email sending", icon: MailIcon },
-      { label: "App builder (v0 integration)", icon: CodeIcon },
-      { label: "10,000 tokens / month", icon: CrownIcon },
+      { label: "1,000,000 tokens / month", icon: CrownIcon },
     ],
   },
 ];
@@ -82,7 +80,7 @@ export const PlansDialog = ({ open, setOpen }: Props) => {
     const orderRes = await fetch("/api/razorpay/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: 499, currency: "INR" }),
+      body: JSON.stringify({ amount: 1, currency: "INR" }),
     });
 
     const order = await orderRes.json(); // contains order.id
