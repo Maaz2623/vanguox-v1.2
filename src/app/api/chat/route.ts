@@ -62,10 +62,10 @@ export async function POST(req: Request) {
       delayInMs: 25,
     }),
     tools: {
-      appBuilder: appBuilder,
+      // appBuilder: appBuilder,
       webSearcher: webSearcher,
       imageGenerator: imageGenerator(model),
-      emailSender: emailSender,
+      // emailSender: emailSender,
     },
   });
 
