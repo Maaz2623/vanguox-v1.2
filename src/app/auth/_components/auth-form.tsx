@@ -35,7 +35,7 @@ export const AuthForm = () => {
         <div className="w-full rounded-2xl border border-border/50 bg-background/70 backdrop-blur-xl shadow-xl p-8 space-y-6 text-center">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
+            <h1 className="text-3xl font-bold text-foreground">Welcome</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Sign in with your Google account
             </p>
@@ -56,21 +56,6 @@ export const AuthForm = () => {
             )}
             Continue with Google
           </Button>
-
-          {/* Divider */}
-          <div className="relative flex items-center">
-            <span className="flex-grow border-t border-border" />
-            <span className="mx-3 text-xs text-muted-foreground">OR</span>
-            <span className="flex-grow border-t border-border" />
-          </div>
-
-          {/* Login Link */}
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Don’t have an account?{" "}
-            <Link href="/signup" className="text-primary underline">
-              Sign up
-            </Link>
-          </p>
         </div>
       </fieldset>
     </div>
