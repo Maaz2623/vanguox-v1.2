@@ -87,7 +87,8 @@ export const ChatInput = () => {
       className={cn(
         "absolute md:w-[70%]  w-[97vw] bg-background px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[20%] pb-2 transition-all duration-500",
         pathname !== "/" && "bottom-0",
-        pathname === "/files" && "hidden"
+        pathname === "/files" && "hidden",
+        pathname === "/settings" && "hidden"
       )}
     >
       <PromptInput onSubmit={handleSubmit} className="bg-foreground/5">

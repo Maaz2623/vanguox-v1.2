@@ -200,12 +200,20 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                           case "tool-webSearcher":
                             switch (part.state) {
                               case "input-available":
-                                return <div key={i}>Searching the web</div>;
+                                return (
+                                  <div key={i} className="animate-pulse">
+                                    Searching the web
+                                  </div>
+                                );
                             }
                           case "tool-imageGenerator":
                             switch (part.state) {
                               case "input-available":
-                                return <div key={i}>Generating your image</div>;
+                                return (
+                                  <div key={i} className="animate-pulse">
+                                    Generating your image
+                                  </div>
+                                );
                             }
                         }
                       })}

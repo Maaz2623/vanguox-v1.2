@@ -42,7 +42,7 @@ export function ChatViewNavMain({ userId }: { userId: string }) {
             <SidebarMenuButton
               onClick={() => router.push(`/`)}
               tooltip="Quick Create"
-              className="bg-primary transition-colors duration-300 text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 ease-linear"
+              className="bg-accent transition-colors duration-300 text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 ease-linear"
             >
               <IconCirclePlusFilled />
               <span>New Chat</span>

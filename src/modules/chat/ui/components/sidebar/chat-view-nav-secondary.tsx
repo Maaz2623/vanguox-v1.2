@@ -179,22 +179,6 @@ export function ChatViewNavSecondary({
                 </div>
               )}
             </SidebarMenuItem>
-            <SidebarMenuItem className="">
-              <SidebarMenuButton
-                asChild
-                onClick={() => router.push(`/settings`)}
-                className={cn(
-                  "",
-                  pathname === "/settings" &&
-                    "dark:bg-neutral-800 bg-neutral-200 font-semibold"
-                )}
-              >
-                <span className="">
-                  <SettingsIcon />
-                  Settings
-                </span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
