@@ -1,235 +1,76 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import React, { useState } from "react";
-import { FaGoogle, FaGithub } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
 import Link from "next/link";
 import { authClient } from "@/lib/auth/auth-client";
+import { Loader2 } from "lucide-react";
 
 export const AuthForm = () => {
   const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    terms: false,
-  });
-
   const handleGoogleLogin = () => {
+    setLoading(true);
     authClient.signIn.social(
-      {
-        provider: "google",
-      },
-      {
-        onRequest: () => {
-          setLoading(true);
-        },
-      }
+      { provider: "google" },
+      { onRequest: () => setLoading(true) }
     );
   };
-
-  const handleGithubLogin = () => {
-    authClient.signIn.social(
-      {
-        provider: "github",
-      },
-      {
-        onRequest: () => {
-          setLoading(true);
-        },
-      }
-    );
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, type, value, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form Data:", formData);
-  };
-
-  const isDisabled =
-    !formData.email ||
-    !formData.firstName ||
-    !formData.lastName ||
-    !formData.password ||
-    !formData.terms;
 
   return (
-    <div className="min-h-screen md:h-screen flex justify-center items-center relative px-4 py-4">
-      {/* Blurred Background Overlay */}
-      <div className="absolute top-0 left-0 bg-transparent w-full h-full -z-5 backdrop-blur-sm" />
+    <div className="min-h-screen flex justify-center items-center relative px-4 py-6">
+      {/* Background Overlay */}
+      <div className="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-md -z-10" />
       <Image
         src="/bg.jpg"
         alt="background"
         fill
-        className="object-cover -z-10 bg-black/70"
+        className="object-cover -z-20"
       />
 
       {/* Card */}
-      <fieldset disabled={loading}>
-        <div className="w-full max-w-5xl h-full shadow-2xl rounded-xl bg-white flex flex-col md:flex-row overflow-hidden">
-          {/* Left Side Image (hidden on small screens) */}
-          <div className="md:w-1/2 hidden md:flex justify-center items-center p-4">
-            <Image
-              src={`/ai-image.jpg`}
-              alt="logo"
-              width={500}
-              height={500}
-              className="w-full h-full rounded-xl object-cover"
-            />
+      <fieldset disabled={loading} className="w-full max-w-md">
+        <div className="w-full rounded-2xl border border-border/50 bg-background/70 backdrop-blur-xl shadow-xl p-8 space-y-6 text-center">
+          {/* Header */}
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Sign in with your Google account
+            </p>
           </div>
 
-          {/* Right Side Form */}
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col items-start px-6 md:px-12 py-8 md:py-12 space-y-4 w-full md:w-1/2"
+          {/* Google Sign-In */}
+          <Button
+            className="w-full text-sm"
+            variant="outline"
+            size="lg"
+            onClick={handleGoogleLogin}
+            disabled={loading}
           >
-            <div className="w-full">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-start">
-                Create an account
-              </h1>
-              <p className="text-sm sm:text-base md:text-lg text-muted-foreground text-start">
-                Get started with creating your account.
-              </p>
-            </div>
+            {loading ? (
+              <Loader2 className="animate-spin h-4 w-4" />
+            ) : (
+              <FaGoogle className="mr-2 h-4 w-4" />
+            )}
+            Continue with Google
+          </Button>
 
-            <div className="w-full my-4 space-y-4">
-              {/* Name Fields */}
-              <div className="flex flex-col md:flex-row w-full gap-4">
-                <div className="w-full space-y-1">
-                  <Label className="text-xs sm:text-sm">First Name</Label>
-                  <Input
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="border text-sm sm:text-base"
-                    placeholder="e.g. John"
-                  />
-                </div>
-                <div className="w-full space-y-1">
-                  <Label className="text-xs sm:text-sm">Last Name</Label>
-                  <Input
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="text-sm sm:text-base"
-                    placeholder="e.g. Doe"
-                  />
-                </div>
-              </div>
+          {/* Divider */}
+          <div className="relative flex items-center">
+            <span className="flex-grow border-t border-border" />
+            <span className="mx-3 text-xs text-muted-foreground">OR</span>
+            <span className="flex-grow border-t border-border" />
+          </div>
 
-              {/* Email */}
-              <div className="space-y-1">
-                <Label className="text-xs sm:text-sm">Email</Label>
-                <Input
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="text-sm sm:text-base"
-                  placeholder="Enter your email"
-                  type="email"
-                />
-              </div>
-
-              {/* Password */}
-              <div className="space-y-1">
-                <Label className="text-xs sm:text-sm">Password</Label>
-                <Input
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="text-sm sm:text-base"
-                  placeholder="Enter your password"
-                  type="password"
-                />
-              </div>
-
-              {/* Terms Checkbox */}
-              <div className="flex items-center gap-x-2 text-xs sm:text-sm">
-                <Checkbox
-                  checked={formData.terms}
-                  onCheckedChange={(checked) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      terms: checked === true,
-                    }))
-                  }
-                  className="size-4 border"
-                />
-
-                <p>
-                  I agree to the{" "}
-                  <a
-                    href="/terms-conditions"
-                    className="underline text-blue-700"
-                  >
-                    Terms & Conditions
-                  </a>
-                </p>
-              </div>
-
-              {/* Create Account Button */}
-              <div>
-                <Button
-                  disabled={isDisabled}
-                  type="submit"
-                  className="w-full text-sm sm:text-base"
-                  size="lg"
-                >
-                  Create Account
-                </Button>
-              </div>
-
-              {/* Divider */}
-              <div className="after:border-border relative text-center text-xs sm:text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                <span className="bg-background text-muted-foreground relative z-10 px-2">
-                  Or continue with
-                </span>
-              </div>
-
-              {/* Social Login */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  className="w-full sm:w-1/2 text-sm sm:text-base"
-                  variant="outline"
-                  size="lg"
-                  onClick={handleGoogleLogin}
-                >
-                  <FaGoogle className="mr-2" /> Google
-                </Button>
-                <Button
-                  className="w-full sm:w-1/2 text-sm sm:text-base"
-                  variant="outline"
-                  size="lg"
-                  disabled
-                  onClick={handleGithubLogin}
-                >
-                  <FaGithub className="mr-2" /> Github
-                </Button>
-              </div>
-            </div>
-
-            {/* Already have account */}
-            <p className="text-xs sm:text-sm md:text-base text-muted-foreground text-center w-full">
-              Already have an account?{" "}
-              <Link href="/login" className="text-blue-700 underline">
-                Login
-              </Link>
-            </p>
-          </form>
+          {/* Login Link */}
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Don’t have an account?{" "}
+            <Link href="/signup" className="text-primary underline">
+              Sign up
+            </Link>
+          </p>
         </div>
       </fieldset>
     </div>

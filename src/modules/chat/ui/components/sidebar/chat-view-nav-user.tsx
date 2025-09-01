@@ -138,7 +138,7 @@ export function ChatViewNavUser({
                 authClient.signOut({
                   fetchOptions: {
                     onSuccess: () => {
-                      router.push(`/`);
+                      router.refresh();
                     },
                   },
                 });
