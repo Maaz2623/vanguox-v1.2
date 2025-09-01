@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Script from "next/script";
+import { authClient } from "@/lib/auth/auth-client";
 
 interface Props {
   open: boolean;
@@ -74,6 +75,8 @@ const plans = [
 export const PlansDialog = ({ open, setOpen }: Props) => {
   const isMobile = useIsMobile();
 
+  const { data } = authClient.useSession();
+
   // 🔹 Razorpay Checkout
   const handleRazorpayPayment = async () => {
     const orderRes = await fetch("/api/razorpay/create-order", {
@@ -86,7 +89,7 @@ export const PlansDialog = ({ open, setOpen }: Props) => {
     setOpen(false);
 
     const options: any = {
-      key: "rzp_test_RAq9fAUQXhGvuG",
+      key: "rzp_live_RCQnzeSIuZirbV",
       amount: order.amount, // from backend
       currency: order.currency,
       name: "Vanguox",
@@ -111,9 +114,9 @@ export const PlansDialog = ({ open, setOpen }: Props) => {
         console.log("Verification result:", result);
       },
       prefill: {
-        name: "Test User",
-        email: "test@example.com",
-        contact: "918296472301",
+        name: data?.user.name ?? "",
+        email: data?.user.email ?? "",
+        contact: "",
       },
       theme: {
         color: "#4F46E5",
