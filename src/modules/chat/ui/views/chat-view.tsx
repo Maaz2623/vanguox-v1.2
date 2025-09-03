@@ -10,12 +10,12 @@ import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Response } from "@/components/ai-elements/response";
 import { useChatStore } from "../../hooks/chat-store";
 import { useSharedChatContext } from "../components/chat-context";
-import { cn, sanitizeText } from "@/lib/utils";
+import { cn, convertFileToDataURL, sanitizeText } from "@/lib/utils";
 import Image from "next/image";
 import { useModelStore } from "../../hooks/model-store";
 import { UIMessage } from "ai";
 import { Action } from "@/components/ai-elements/actions";
-import { CheckIcon, CopyIcon, RefreshCcwIcon } from "lucide-react";
+import { CheckIcon, CopyIcon, FileIcon, RefreshCcwIcon } from "lucide-react";
 import { Loader } from "@/components/ai-elements/loader";
 import { useChatIdStore } from "../../hooks/chatId-store";
 import {
@@ -33,7 +33,14 @@ interface Props {
 
 export const ChatView = ({ previousMessages, chatId }: Props) => {
   const { chatId: storeChatId, setChatId } = useChatIdStore();
-  const { pendingMessage, setPendingMessage } = useChatStore();
+  const {
+    pendingMessage,
+    setPendingMessage,
+    pendingFile,
+    setPendingFile,
+    fileUrl,
+    setFileUrl,
+  } = useChatStore();
   const { model } = useModelStore();
 
   const { messages, sendMessage, regenerate, status, setMessages } =
@@ -50,15 +57,39 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
     if (!storeChatId) {
       setChatId(chatId);
     }
+
     if (pendingMessage && !sentRef.current) {
-      sentRef.current = true; // prevent second run
-      sendMessage(
-        { text: pendingMessage },
-        { body: { model: model.id, chatId: chatId } }
-      );
-      setPendingMessage(null);
+      sentRef.current = true;
+
+      const send = async () => {
+        const fileParts =
+          pendingFile && fileUrl
+            ? [await convertFileToDataURL(pendingFile, fileUrl)]
+            : [];
+        sendMessage(
+          {
+            role: "user",
+            parts: [{ type: "text", text: pendingMessage }, ...fileParts],
+          },
+          { body: { model: model.id, chatId: chatId } }
+        );
+
+        setPendingMessage(null);
+        setPendingFile(null);
+        setFileUrl(null);
+      };
+
+      send();
     }
-  }, [pendingMessage, sendMessage, setPendingMessage, model.id, chatId]);
+  }, [
+    pendingMessage,
+    pendingFile,
+    sendMessage,
+    setPendingMessage,
+    setPendingFile,
+    model.id,
+    chatId,
+  ]);
 
   const modelIcon =
     models.find((m) => m.id === model.id)?.icon || "/model-logos/default.avif";
@@ -113,13 +144,35 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                   <Message from={message.role} key={message.id}>
                     <MessageContent
                       className={cn(
-                        message.role === "assistant" && "bg-background!",
-                        message.role === "user" &&
-                          "dark:bg-primary/20! !rounded-tl-full !rounded-tr-full !rounded-bl-full !rounded-br-none"
+                        "bg-transparent!",
+                        message.role === "assistant" && "bg-background!"
                       )}
                     >
-                      {message.parts.map((part, i) => {
+                      {[...message.parts].reverse().map((part, i) => {
                         switch (part.type) {
+                          case "file":
+                            return (
+                              <div
+                                key={`${message.id}-file-${i}`}
+                                className="flex mb-2 items-center gap-2 border px-1 py-1 rounded-lg text-sm shadow-sm max-w-[200px] h-[40px] bg-muted justify-start w-[150px]"
+                              >
+                                {/* show file icon based on mediaType */}
+                                {part.mediaType.startsWith("image/") ? (
+                                  <Image
+                                    src={part.url}
+                                    alt="uploaded file"
+                                    width={40}
+                                    height={40}
+                                    className="rounded-md object-cover"
+                                  />
+                                ) : (
+                                  <FileIcon className="size-5" />
+                                )}
+                                <p className="text-md mx-auto text-muted-foreground">
+                                  {part.mediaType}
+                                </p>
+                              </div>
+                            );
                           case "reasoning":
                             return (
                               <Reasoning
@@ -135,7 +188,10 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                             return (
                               <div
                                 key={`${message.id}-${i}`}
-                                className="flex items-start gap-3"
+                                className={cn(
+                                  "flex items-start gap-3",
+                                  message.role === "user" && " justify-end px-2"
+                                )}
                               >
                                 {message.role === "assistant" && (
                                   <Image
@@ -155,7 +211,9 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                                   )}
                                   <Response
                                     className={cn(
-                                      "text-[15px] leading-relaxed max-w-[40vw]! overflow-x-auto!",
+                                      "text-[16px] leading-relaxed max-w-[40vw]! overflow-x-auto!",
+                                      message.role === "user" &&
+                                        "dark:bg-primary/20! px-3 py-2 text-[16px] !rounded-tl-2xl !rounded-tr-2xl !rounded-bl-2xl !rounded-br-none",
                                       isMobile && "text-[14px] max-w-[60vw]!",
                                       open && !isMobile && "max-w-[35vw]!"
                                     )}
