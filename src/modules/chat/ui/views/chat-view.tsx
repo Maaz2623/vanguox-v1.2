@@ -269,9 +269,14 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                               case "input-available":
                                 return (
                                   <div key={i} className="animate-pulse">
-                                    Generating your image
+                                    Generating your image (using gemini)
                                   </div>
                                 );
+                            }
+                          case "tool-addResource":
+                            switch (part.state) {
+                              case "input-available":
+                                return <div key={i}>Saving Data</div>;
                             }
                         }
                       })}

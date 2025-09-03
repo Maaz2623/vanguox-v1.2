@@ -1,9 +1,21 @@
 import { UIMessage } from "ai";
 import { sql } from "drizzle-orm";
-import { boolean, integer, jsonb, pgEnum, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  uuid,
+  varchar,
+  vector,
+} from "drizzle-orm/pg-core";
 import { timestamp } from "drizzle-orm/pg-core";
 import { text } from "drizzle-orm/pg-core";
 import { pgTable } from "drizzle-orm/pg-core";
+import { createSelectSchema } from "drizzle-zod";
+import { nanoid } from "@/lib/utils";
+import z from "zod";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -125,3 +137,53 @@ export const subscriptionsTable = pgTable("subscriptions_table", {
     () => /* @__PURE__ */ new Date()
   ),
 });
+
+export const resources = pgTable("resources", {
+  id: varchar("id", { length: 191 })
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  content: text("content").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+
+  createdAt: timestamp("created_at")
+    .notNull()
+    .default(sql`now()`),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .default(sql`now()`),
+});
+
+// Schema for resources - used to validate API requests
+export const insertResourceSchema = createSelectSchema(resources)
+  .extend({})
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  });
+
+// Type for resources - used to type API request params and within Components
+export type NewResourceParams = z.infer<typeof insertResourceSchema>;
+
+export const embeddingsTable = pgTable(
+  "embeddings",
+  {
+    id: varchar("id", { length: 191 })
+      .primaryKey()
+      .$defaultFn(() => nanoid()),
+    resourceId: varchar("resource_id", { length: 191 }).references(
+      () => resources.id,
+      { onDelete: "cascade" }
+    ),
+    content: text("content").notNull(),
+    embedding: vector("embedding", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    embeddingIndex: index("embeddingIndex").using(
+      "hnsw",
+      table.embedding.op("vector_cosine_ops")
+    ),
+  })
+);

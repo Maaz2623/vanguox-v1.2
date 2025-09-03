@@ -1,7 +1,7 @@
 import { saveChat, updateChatTitle } from "@/ai/functions";
 import {
-  appBuilder,
-  emailSender,
+  addResource,
+  getInformation,
   imageGenerator,
   webSearcher,
 } from "@/ai/tools";
@@ -66,6 +66,8 @@ export async function POST(req: Request) {
       webSearcher: webSearcher,
       imageGenerator: imageGenerator(model),
       // emailSender: emailSender,
+      getInformation: getInformation,
+      addResource: addResource,
     },
   });
 

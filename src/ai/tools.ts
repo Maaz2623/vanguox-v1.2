@@ -9,6 +9,8 @@ import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import { google } from "@ai-sdk/google";
 import { Resend } from "resend";
+import { createResource } from "./actions/resource";
+import { findRelevantContent } from "./embedding";
 
 export const utapi = new UTApi({
   // ...options,
@@ -29,6 +31,42 @@ async function base64ToFile(
   }
   return new File([intArray], filename, { type: mimeType });
 }
+
+export const getInformation = tool({
+  description: `get information from your knowledge base to answer questions.`,
+  inputSchema: z.object({
+    question: z.string().describe("the users question"),
+  }),
+  execute: async ({ question }) => {
+    const authData = await auth.api.getSession({
+      headers: await headers(),
+    });
+    if (!authData) return;
+    const results = await findRelevantContent(question, authData.user.id);
+    console.log("tool called: getInformation");
+    return results.length > 0
+      ? results.map((r) => r.name).join("\n")
+      : "I couldn’t find anything in memory.";
+  },
+});
+
+export const addResource = tool({
+  description: `add a resource to your knowledge base.
+          If the user provides a random piece of knowledge unprompted, use this tool without asking for confirmation.`,
+  inputSchema: z.object({
+    content: z
+      .string()
+      .describe("the content or resource to add to the knowledge base"),
+  }),
+  execute: async ({ content }) => {
+    const authData = await auth.api.getSession({
+      headers: await headers(),
+    });
+    if (!authData) return;
+    console.log("tool called: addResource");
+    createResource({ content, userId: authData.user.id });
+  },
+});
 
 export const imageGenerator = (modelId: string) =>
   tool({
