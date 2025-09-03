@@ -148,7 +148,10 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                         message.role === "assistant" && "bg-background!"
                       )}
                     >
-                      {[...message.parts].reverse().map((part, i) => {
+                      {(message.role === "user"
+                        ? [...message.parts].reverse()
+                        : message.parts
+                      ).map((part, i) => {
                         switch (part.type) {
                           case "file":
                             return (
