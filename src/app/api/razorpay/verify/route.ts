@@ -39,6 +39,7 @@ export async function POST(req: Request) {
         .update(user)
         .set({
           maxTokens: 1000000,
+          totalTokensUsed: 0,
         })
         .where(eq(user.id, authData.user.id));
 

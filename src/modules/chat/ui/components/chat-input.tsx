@@ -34,7 +34,7 @@ import { ModelCombobox } from "@/components/model-combo-box";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUploadThing } from "@/lib/uploadthing";
 
-export const ChatInput = () => {
+export const ChatInput = ({ limitReached }: { limitReached: boolean }) => {
   const [progress, setProgress] = useState<number>(0);
   const [uploading, setUploading] = useState<boolean>(false);
 
@@ -117,85 +117,87 @@ export const ChatInput = () => {
   };
 
   return (
-    <div
-      className={cn(
-        "absolute md:w-[70%] w-[97vw] bg-background px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[20%] pb-2 transition-all duration-500",
-        pathname !== "/" && "bottom-0",
-        pathname === "/files" && "hidden",
-        pathname === "/settings" && "hidden"
-      )}
-    >
-      {/* hidden file input */}
-      <input
-        type="file"
-        className="hidden"
-        onChange={(event) => {
-          event.preventDefault(); // 👈 avoids form submit
-          if (event.target.files) {
-            setFile(event.target.files[0]);
-            startUpload(Array.from(event.target.files));
-          }
-        }}
-        ref={fileInputRef}
-      />
-
-      {/* File preview area */}
-      {file && (
-        <div>
-          <FilesPreview
-            progress={progress}
-            uploading={uploading}
-            file={file}
-            setFile={setFile}
-            fileUrl={fileUrl}
-            setFileUrl={setFileUrl}
-          />
-        </div>
-      )}
-
-      <PromptInput
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit(e);
-        }}
-        className="bg-foreground/5"
+    <fieldset disabled={limitReached}>
+      <div
+        className={cn(
+          "absolute md:w-[70%] w-[97vw] bg-background px-2 md:px-0 left-1/2 -translate-x-1/2 bottom-[20%] pb-2 transition-all duration-500",
+          pathname !== "/" && "bottom-0",
+          pathname === "/files" && "hidden",
+          pathname === "/settings" && "hidden"
+        )}
       >
-        <PromptInputTextarea
-          onChange={(e) => setText(e.target.value)}
-          value={text}
-          className="py-4 px-4"
+        {/* hidden file input */}
+        <input
+          type="file"
+          className="hidden"
+          onChange={(event) => {
+            event.preventDefault(); // 👈 avoids form submit
+            if (event.target.files) {
+              setFile(event.target.files[0]);
+              startUpload(Array.from(event.target.files));
+            }
+          }}
+          ref={fileInputRef}
         />
-        <PromptInputToolbar className="p-2">
-          <PromptInputTools>
-            <PromptInputButton
-              type="button" // prevents ?message=... navigation
-              variant="ghost"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <PlusIcon size={16} />
-            </PromptInputButton>
 
-            {hydrated ? (
-              <ModelCombobox
-                models={models}
-                value={model.id}
-                onChange={(selectedModel) => setAiModel(selectedModel)}
-              />
-            ) : (
-              <Skeleton className="w-[150px] h-8 bg-foreground/10" />
-            )}
-          </PromptInputTools>
+        {/* File preview area */}
+        {file && (
+          <div>
+            <FilesPreview
+              progress={progress}
+              uploading={uploading}
+              file={file}
+              setFile={setFile}
+              fileUrl={fileUrl}
+              setFileUrl={setFileUrl}
+            />
+          </div>
+        )}
 
-          <PromptInputSubmit
-            onClick={() => {
-              if (status === "streaming") stop();
-            }}
-            disabled={status === "submitted" || uploading}
-            status={status}
+        <PromptInput
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(e);
+          }}
+          className="bg-foreground/5"
+        >
+          <PromptInputTextarea
+            onChange={(e) => setText(e.target.value)}
+            value={text}
+            className="py-4 px-4"
           />
-        </PromptInputToolbar>
-      </PromptInput>
-    </div>
+          <PromptInputToolbar className="p-2">
+            <PromptInputTools>
+              <PromptInputButton
+                type="button" // prevents ?message=... navigation
+                variant="ghost"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <PlusIcon size={16} />
+              </PromptInputButton>
+
+              {hydrated ? (
+                <ModelCombobox
+                  models={models}
+                  value={model.id}
+                  onChange={(selectedModel) => setAiModel(selectedModel)}
+                />
+              ) : (
+                <Skeleton className="w-[150px] h-8 bg-foreground/10" />
+              )}
+            </PromptInputTools>
+
+            <PromptInputSubmit
+              onClick={() => {
+                if (status === "streaming") stop();
+              }}
+              disabled={status === "submitted" || uploading}
+              status={status}
+            />
+          </PromptInputToolbar>
+        </PromptInput>
+      </div>
+    </fieldset>
   );
 };
 

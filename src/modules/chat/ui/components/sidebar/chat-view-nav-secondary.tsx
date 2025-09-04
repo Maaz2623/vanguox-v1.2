@@ -86,7 +86,7 @@ export function ChatViewNavSecondary({
                       </span>
                     </SidebarMenuButton>
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-background!">
+                  <TooltipContent side="right" className="bg-background! text-foreground">
                     <div className="w-full rounded-2xl border bg-card shadow-sm p-4 flex flex-col gap-3">
                       {/* Header */}
                       <div className="flex items-center justify-between">

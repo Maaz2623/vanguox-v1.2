@@ -6,6 +6,7 @@ import { ChatProvider } from "@/modules/chat/ui/components/chat-context";
 import { ChatInput } from "@/modules/chat/ui/components/chat-input";
 import { ChatViewSidebar } from "@/modules/chat/ui/components/sidebar/chat-view-sidebar";
 import { getQueryClient, trpc } from "@/trpc/server";
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -34,6 +35,16 @@ export default async function MainLayout({
     });
   }
 
+  const [usage] = await db
+    .select({
+      tokensUsed: user.totalTokensUsed,
+      maxTokens: user.maxTokens,
+    })
+    .from(user)
+    .where(eq(user.id, authData.user.id));
+
+  const limitReached = usage.tokensUsed >= usage.maxTokens;
+
   return (
     <ChatProvider>
       <div className="h-screen relative flex">
@@ -61,7 +72,7 @@ export default async function MainLayout({
             {/* <ChatSidebar userId={authData.user.id} /> */}
             <div className=" w-full h-screen">
               {children}
-              <ChatInput />
+              <ChatInput limitReached={limitReached} />
             </div>
           </div>
         </SidebarProvider>

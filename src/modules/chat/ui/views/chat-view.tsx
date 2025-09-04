@@ -216,7 +216,7 @@ export const ChatView = ({ previousMessages, chatId }: Props) => {
                                     className={cn(
                                       "text-[16px] leading-relaxed max-w-[40vw]! overflow-x-auto!",
                                       message.role === "user" &&
-                                        "dark:bg-primary/20! px-3 py-2 text-[16px] !rounded-tl-2xl !rounded-tr-2xl !rounded-bl-2xl !rounded-br-none",
+                                        "dark:bg-primary/20! bg-primary px-3 py-2 text-[16px] !rounded-tl-2xl !rounded-tr-2xl !rounded-bl-2xl !rounded-br-none",
                                       isMobile && "text-[14px] max-w-[60vw]!",
                                       open && !isMobile && "max-w-[35vw]!"
                                     )}

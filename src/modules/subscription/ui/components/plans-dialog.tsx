@@ -39,6 +39,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Script from "next/script";
 import { authClient } from "@/lib/auth/auth-client";
+import { useRouter } from "next/navigation";
 
 interface Props {
   open: boolean;
@@ -75,6 +76,8 @@ export const PlansDialog = ({ open, setOpen }: Props) => {
 
   const { data } = authClient.useSession();
 
+  const router = useRouter();
+
   // 🔹 Razorpay Checkout
   const handleRazorpayPayment = async () => {
     const orderRes = await fetch("/api/razorpay/create-order", {
@@ -109,7 +112,7 @@ export const PlansDialog = ({ open, setOpen }: Props) => {
         });
 
         const result = await verifyRes.json();
-        console.log("Verification result:", result);
+        router.refresh();
       },
       prefill: {
         name: data?.user.name ?? "",
@@ -120,8 +123,6 @@ export const PlansDialog = ({ open, setOpen }: Props) => {
         color: "#4F46E5",
       },
     };
-
-    console.log(options);
 
     const rzp = new (window as any).Razorpay(options);
     rzp.open();
