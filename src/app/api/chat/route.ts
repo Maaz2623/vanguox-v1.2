@@ -10,6 +10,7 @@ import { user } from "@/db/schema";
 import { auth } from "@/lib/auth/auth";
 import { Model } from "@/modules/chat/hooks/types";
 import { systemPrompt } from "@/prompt";
+import { getQueryClient, trpc } from "@/trpc/server";
 import {
   convertToModelMessages,
   createIdGenerator,
@@ -28,33 +29,45 @@ export async function POST(req: Request) {
   }: { messages: UIMessage[]; model: Model["id"]; chatId: string } =
     await req.json();
 
+  // --- Auth ---
   const authData = await auth.api.getSession({
     headers: await headers(),
   });
-
+  
   if (!authData) {
     throw new Error("Unauthorized");
   }
 
-  // fetch usage + limit
-  const [userData] = await db
+  // --- Subscription & usage ---
+  const queryClient = getQueryClient();
+  const data = await queryClient.fetchQuery(
+    trpc.subscription.getCurrentSubscription.queryOptions()
+  );
+
+  const [usage] = await db
     .select({
+      tokensUsed: user.totalTokensUsed,
       maxTokens: user.maxTokens,
-      totalTokensUsed: user.totalTokensUsed,
     })
     .from(user)
     .where(eq(user.id, authData.user.id));
 
-  // enforce limit
+  const billingCycleEnd = data?.billingCycleEnd
+    ? new Date(data.billingCycleEnd).getTime()
+    : 0;
+
+  // --- Enforce token limit ---
   if (
-    userData.maxTokens !== null &&
-    userData.totalTokensUsed >= userData.maxTokens
+    usage.maxTokens !== null &&
+    usage.tokensUsed >= usage.maxTokens &&
+    Date.now() < billingCycleEnd
   ) {
-    throw new Error("Token limit reached!");
+    throw new Error("Token limit reached");
   }
 
+  // --- Streaming response ---
   const result = streamText({
-    model: model,
+    model,
     system: `${systemPrompt}`,
     messages: convertToModelMessages(messages),
     experimental_transform: smoothStream({
@@ -62,12 +75,10 @@ export async function POST(req: Request) {
       delayInMs: 25,
     }),
     tools: {
-      // appBuilder: appBuilder,
-      webSearcher: webSearcher,
+      webSearcher,
       imageGenerator: imageGenerator(model),
-      // emailSender: emailSender,
-      getInformation: getInformation,
-      addResource: addResource,
+      getInformation,
+      addResource,
     },
   });
 
@@ -82,14 +93,13 @@ export async function POST(req: Request) {
     onFinish: async ({ messages: updatedMessages }) => {
       if (messages.length < 2) {
         updateChatTitle({
-          chatId: chatId,
+          chatId,
           messages,
-          model: model,
+          model,
         });
       }
 
       const reversed = [...updatedMessages].reverse();
-
       const assistantMessage = reversed.find(
         (m) =>
           m.role === "assistant" &&
@@ -104,7 +114,6 @@ export async function POST(req: Request) {
       const assistantIndex = updatedMessages.findIndex(
         (m) => m.id === assistantMessage.id
       );
-
       const userMessage = updatedMessages
         .slice(0, assistantIndex)
         .reverse()
@@ -112,19 +121,17 @@ export async function POST(req: Request) {
 
       if (!userMessage) return;
 
+      // Save chat
       await saveChat({
-        chatId: chatId,
+        chatId,
         messages: [userMessage, assistantMessage],
         modelId: model,
       });
 
+      // Update usage
       const fullUsage = await result.usage;
+      const updatedTotal = usage.tokensUsed + (fullUsage.totalTokens ?? 0);
 
-      // increment only totalTokensUsed (no more JSON usage object)
-      const updatedTotal =
-        userData.totalTokensUsed + (fullUsage.totalTokens ?? 0);
-
-      console.log("Updating usage");
       await db
         .update(user)
         .set({
@@ -132,8 +139,6 @@ export async function POST(req: Request) {
           updatedAt: new Date(),
         })
         .where(eq(user.id, authData.user.id));
-
-      console.log("updated usage");
     },
   });
 }

@@ -1,9 +1,11 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { db } from "@/db";
+import { user } from "@/db/schema";
 import { auth } from "@/lib/auth/auth";
 import { ChatProvider } from "@/modules/chat/ui/components/chat-context";
 import { ChatInput } from "@/modules/chat/ui/components/chat-input";
 import { ChatViewSidebar } from "@/modules/chat/ui/components/sidebar/chat-view-sidebar";
-import { ChatViewSiteHeader } from "@/modules/chat/ui/components/sidebar/chat-view-site-header";
+import { getQueryClient, trpc } from "@/trpc/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -18,6 +20,18 @@ export default async function MainLayout({
 
   if (!authData) {
     redirect(`/auth`);
+  }
+
+  const queryClient = getQueryClient();
+
+  const data = await queryClient.fetchQuery(
+    trpc.subscription.getCurrentSubscription.queryOptions()
+  );
+
+  if (!data) {
+    await db.update(user).set({
+      maxTokens: 50000,
+    });
   }
 
   return (
