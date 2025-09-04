@@ -172,7 +172,7 @@ export const ChatInput = () => {
               variant="ghost"
               onClick={() => fileInputRef.current?.click()}
             >
-              <PlusIcon size={16} />
+              <PlusIcon size={16} />t
             </PromptInputButton>
 
             {hydrated ? (

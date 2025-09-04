@@ -24,9 +24,12 @@ import { useQuery } from "convex/react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { api } from "../../../../../../convex/_generated/api";
+import { useSharedChatContext } from "../chat-context";
 
 export function ChatViewNavMain({ userId }: { userId: string }) {
   const router = useRouter();
+
+  const { stop } = useSharedChatContext();
 
   const chats = useQuery(api.chats.getChats, {
     userId: userId,
@@ -91,6 +94,11 @@ export function ChatViewNavMain({ userId }: { userId: string }) {
                               "",
                               isActive && "bg-neutral-500/10 font-semibold"
                             )}
+                            onClick={() => {
+                              if (!isActive) {
+                                stop();
+                              }
+                            }}
                             asChild
                           >
                             <Link href={`/chats/${item._id}`}>
